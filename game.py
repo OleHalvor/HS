@@ -258,6 +258,7 @@ class Game:
 		tempMinion = self.activePlayer.hand.pop(cardPosition)
 		print (self.activePlayer.name," played minion: ", tempMinion)
 		self.activePlayer.activeMinions.append(tempMinion)
+		tempMinion.bc(self.activePlayer,self.passivePlayer)
 
 	def draw(self,amount,player):
 		if player=="a":

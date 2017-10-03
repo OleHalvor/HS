@@ -21,6 +21,12 @@ concecration.addDescription("Deal 4 damage to all enemy characters")
 footman = Minion("Goldshire Footman",1,1,2)
 footman.giveTaunt()
 
+selv = Minion("Selvskader",1,1,1)
+def selvskad(activePlayer,passivePlayer):
+	activePlayer.health = activePlayer.health - 5
+selv.setBattlecry(selvskad)
+
+
 
 
 deck1 = Deck("deck 1")
@@ -42,6 +48,16 @@ deck1.addCard(Minion("Kort9",1,6,3))
 deck1.addCard(Minion("Kort10",1,2,9))
 deck1.addCard(Minion("Kort11",1,7,3))
 deck1.addCard(Minion("Kort12",1,6,3))
+deck1.addCard(selv)
+deck1.addCard(selv)
+deck1.addCard(selv)
+deck1.addCard(selv)
+deck1.addCard(selv)
+deck1.addCard(selv)
+deck1.addCard(selv)
+deck1.addCard(selv)
+deck1.addCard(selv)
+deck1.addCard(selv)
 
 
 deck2 = Deck("deck 2")

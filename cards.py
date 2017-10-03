@@ -31,6 +31,12 @@ class Minion(Card):
 		def start(activePlayer,passivePlayer):
 			pass
 		self.onRoundStart = start
+		def battleCryF(activePlayer,passivePlayer):
+			pass
+		self.bc = battleCryF
+
+	def setBattlecry(self,action):
+		self.bc = action
 
 	def giveTaunt(self):
 		self.hasTaunt = True
