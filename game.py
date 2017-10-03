@@ -6,6 +6,7 @@ class Game:
 		self.activePlayer = player1
 		self.passivePlayer = player2
 		self.turnCounter = 0
+	
 	def printPassiveHand(self):
 		line0=''
 		line1=''
@@ -64,7 +65,6 @@ class Game:
 			print(line4)
 			print(line5)
 		print("*{}*\n   MANA: {}/{}".format(self.activePlayer.getName(), self.activePlayer.currentMana,self.activePlayer.maxMana))
-
 
 	def printPassivePlayerActiveMinion(self):
 		# 8 kolonner per minion
@@ -151,7 +151,6 @@ class Game:
 			print(line3)
 			print(line4)
 			print(line5)
-
 
 	def printGameState(self):
 		# print("----PASSIVE---")
@@ -311,7 +310,6 @@ class Game:
 		if (killedAny):
 			self.removeDeadMinions()
 
-
 	def start(self):
 		print("----The game is starting----")
 		self.activePlayer.deck.shuffle()
@@ -320,7 +318,6 @@ class Game:
 		self.draw(2,"p")
 		gameOver = False
 		while not gameOver:
-			# print(" ROUND:",self.activePlayer.currentMana)
 			roundDone = False
 			while not (roundDone):
 				#New players turn
@@ -349,14 +346,8 @@ class Game:
 					else:
 						action = input("Write 'e' to end turn: ")
 					if action == "p":
-
-						# print ("Your hand consists of: ")
-						# self.printHand()
-						# for i in range (len(self.activePlayer.hand)):
-						# 	print(i,self.activePlayer.hand[i])
 						canPlayCard = False
 						for card in self.activePlayer.hand:
-							# print("card cost and current mana:",card.cost,self.activePlayer.currentMana)
 							if card.cost <= self.activePlayer.currentMana:
 								canPlayCard = True
 						if canPlayCard:
@@ -373,8 +364,6 @@ class Game:
 							prnt=False
 					if action =="v":
 						pass
-						# self.printGameState()
-						# self.printHand()
 					if action =="e":
 						print ("======== ENDING TURN ========")
 						break
