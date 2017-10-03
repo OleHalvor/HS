@@ -24,7 +24,26 @@ class Minion(Card):
 		self.defaultAttack = attack
 		self.currentHealth = health
 		self.currentAttack = attack
+		self.hasAttacked = True
+		self.frozenRounds = 0
+		self.hasCharge = False
+
+	def attacked(self):
+		self.hasAttacked = True
+
+	def readyToAttack(self):
 		self.hasAttacked = False
+
+	def freeze(self,rounds):
+		self.frozenRounds += rounds
+
+	def freezeTick(self):
+		self.frozenRounds = self.frozenRounds -1
+		if self.frozenRounds <0:
+			self.frozenRounds = 0
+
+	def unFreeze(self):
+		self.frozenRounds = 0
 
 	def getHealth(self):
 		return self.currentHealth
@@ -32,21 +51,31 @@ class Minion(Card):
 	def getAttack(self):
 		return self.currentAttack
 
+	def damage(self,damage):
+		self.currentHealth = self.currentHealth - damage
+
 	def setHealth(self,newHealth):
 		self.health = newHealth
 
 class Spell(Card):
 	def __init__(self,name,cost):
 		Card.__init__(self,name,"Spell",cost)
-		self.damageOne=[0,False]
-		self.damageEnemyAOE=[0]
+		self.damageOne=[0,False] # first value is damage, second is if the target is random
+		self.damageEnemyAOE=[0,False] #First value is damage, second is if the spell also hits face
+		self.description = ''
 
 
 	def addDamageOne(self,amount,rng):
 		self.damageOne=[amount,rng]
 
-	def addEnemyAOE(self,amount):
-		self.enemyAOE = amount
+	def addDamageEnemyAOE(self,amount,face):
+		self.damageEnemyAOE=[amount,face]
+
+	def addDescription(self,desc):
+		self.description = desc
+
+	def getDescription(self):
+		return self.description
 
 
 
