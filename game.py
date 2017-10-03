@@ -180,6 +180,7 @@ class Game:
 		self.turnCounter += 1
 		if self.turnCounter%2==0:
 			self.nextRound()
+		self.activateRoundStartMinions()
 		print (self.activePlayer.getName()+"'s turn")
 
 	def nextRound(self):
@@ -187,6 +188,10 @@ class Game:
 		self.passivePlayer.currentMana = self.passivePlayer.maxMana
 		self.activePlayer.maxMana+=1
 		self.activePlayer.currentMana = self.activePlayer.maxMana
+
+	def activateRoundStartMinions(self):
+		for minion in self.activePlayer.activeMinions:
+			minion.onRoundStart(self.activePlayer,self.passivePlayer)
 
 	def mulligan(self):
 		pass

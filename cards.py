@@ -28,6 +28,9 @@ class Minion(Card):
 		self.frozenRounds = 0
 		self.hasCharge = False
 		self.hasTaunt = False
+		def start(activePlayer,passivePlayer):
+			pass
+		self.onRoundStart = start
 
 	def giveTaunt(self):
 		self.hasTaunt = True
