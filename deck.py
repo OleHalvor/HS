@@ -1,3 +1,4 @@
+import random
 class Deck:
 
 	def __init__(self,name):
@@ -14,7 +15,7 @@ class Deck:
 		return self.cards.pop()
 
 	def shuffle(self):
-		pass
+		random.shuffle(self.cards)
 
 
 # from cards import Card, Minion

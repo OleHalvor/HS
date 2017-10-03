@@ -43,11 +43,15 @@ class Game:
 			line00+="{} {} - ".format(i,cardsInHand[i].getName())
 			line0+=" _____  "
 			line1+="|{}    | ".format(cardsInHand[i].cost)
-			line2+="|     | "
 			if (cardsInHand[i].getType()=="Minion"):
 				line3+="| {}/{} | ".format(cardsInHand[i].currentAttack,cardsInHand[i].currentHealth)
+				if (cardsInHand[i].hasTaunt):
+					line2+="|Taunt| "
+				else:
+					line2+="|     | "
 			elif (cardsInHand[i].getType()=="Spell"):
-				line3+="|     | "
+				line3+="|SPELL| "
+				line2+="|     | "
 			line4+="|_____| "
 			line5+="   {}    ".format(i)
 
@@ -61,6 +65,51 @@ class Game:
 			print(line5)
 		print("*{}*\n   MANA: {}/{}".format(self.activePlayer.getName(), self.activePlayer.currentMana,self.activePlayer.maxMana))
 
+
+	def printPassivePlayerActiveMinion(self):
+		# 8 kolonner per minion
+		line00=''
+		line0=''
+		line1=''
+		line2=''
+		line3=''
+		line4=''
+		line5=''
+		activeM = self.passivePlayer.activeMinions
+
+		if len(activeM)<=0:
+			print("\nEmpty board side\n")
+
+		for i in range(len(activeM)):
+			hasAttacked = activeM[i].hasAttacked
+			frozRounds = activeM[i].frozenRounds
+			hasTaunt = activeM[i].hasTaunt
+			line0+=" _____  "
+			if not hasAttacked and frozRounds<=0 :
+				line1+="|{}    | ".format(activeM[i].cost)
+			elif frozRounds>0:
+				line1+="|{}   F| ".format(activeM[i].cost)
+			else:
+				line1+="|{}   Z| ".format(activeM[i].cost)
+			if hasTaunt:
+				line2+="|Taunt| "
+			else:
+				line2+="|     | "
+			if (activeM[i].getType()=="Minion"):
+				line3+="| {}/{} | ".format(activeM[i].currentAttack,activeM[i].currentHealth)
+			elif (activeM[i].getType()=="Spell"):
+				line3+="|SPELL| "
+			line4+="|_____| "
+			line5+="   {}    ".format(i)
+
+		if (len(activeM)>0):
+			print(line0)
+			print(line1)
+			print(line2)
+			print(line3)
+			print(line4)
+			print(line5)
+
 	def printActivePlayerActiveMinion(self):
 		# 8 kolonner per minion
 		line00=''
@@ -71,20 +120,31 @@ class Game:
 		line4=''
 		line5=''
 		activeM = self.activePlayer.activeMinions
+		if len(activeM)<=0:
+			print("\nEmpty board side\n")
 		for i in range(len(activeM)):
-			line00+="{} {} - ".format(i,activeM[i].getName())
+			hasAttacked = activeM[i].hasAttacked
+			frozRounds = activeM[i].frozenRounds
+			hasTaunt = activeM[i].hasTaunt
 			line0+=" _____  "
-			line1+="|{}    | ".format(activeM[i].cost)
-			line2+="|     | "
+			if not hasAttacked and frozRounds<=0 :
+				line1+="|{}    | ".format(activeM[i].cost)
+			elif frozRounds>0:
+				line1+="|{}   F| ".format(activeM[i].cost)
+			else:
+				line1+="|{}   Z| ".format(activeM[i].cost)
+			if hasTaunt:
+				line2+="|Taunt| "
+			else:
+				line2+="|     | "
 			if (activeM[i].getType()=="Minion"):
 				line3+="| {}/{} | ".format(activeM[i].currentAttack,activeM[i].currentHealth)
 			elif (activeM[i].getType()=="Spell"):
-				line3+="|     | "
+				line3+="|SPELL| "
 			line4+="|_____| "
 			line5+="   {}    ".format(i)
 
 		if (len(activeM)>0):
-			print(line00)
 			print(line0)
 			print(line1)
 			print(line2)
@@ -95,18 +155,20 @@ class Game:
 
 	def printGameState(self):
 		# print("----PASSIVE---")
-		print ("-----",self.passivePlayer.getHealth(),"-----")
+		print ("-------------",self.passivePlayer.getHealth(),"-------------")
 		player1Minions = self.passivePlayer.getActiveMinions()
 		player2Minions = self.activePlayer.getActiveMinions()
 		p1MinionStr = ''
 		p2MinionStr = ''
-		for i in range (len(player1Minions)):
-			p1MinionStr = '{} {}/{}'.format(p1MinionStr,player1Minions[i].getAttack(),player1Minions[i].getHealth())
-		print(p1MinionStr)
-		for i in range (len(player2Minions)):
-			p2MinionStr = '{} {}/{}'.format(p2MinionStr,player2Minions[i].getAttack(),player2Minions[i].getHealth())
-		print(p2MinionStr)
-		print("-----",self.activePlayer.getHealth(),"-----")
+		# for i in range (len(player1Minions)):
+		# 	p1MinionStr = '{} {}/{}'.format(p1MinionStr,player1Minions[i].getAttack(),player1Minions[i].getHealth())
+		# print(p1MinionStr)
+		# for i in range (len(player2Minions)):
+		# 	p2MinionStr = '{} {}/{}'.format(p2MinionStr,player2Minions[i].getAttack(),player2Minions[i].getHealth())
+		# print(p2MinionStr)
+		self.printPassivePlayerActiveMinion()
+		self.printActivePlayerActiveMinion()
+		print("-------------",self.activePlayer.getHealth(),"-------------")
 		# print("----ACTIVE----")
 
 	def nextTurn(self):
@@ -131,13 +193,21 @@ class Game:
 		pass
 
 	def canDoSomething(self):
+		if self.canPlayCard():
+			return True
+		if self.canAttack():
+			return True
+		return False
+
+	def canPlayCard(self):
 		for card in self.activePlayer.hand:
 			if card.cost <= self.activePlayer.currentMana:
 				return True
+
+	def canAttack(self):
 		for minion in self.activePlayer.activeMinions:
 			if minion.hasAttacked==False and minion.frozenRounds>=0:
 				return True
-		return False
 
 	def playCard(self,cardPosition):
 
@@ -228,6 +298,7 @@ class Game:
 				print("{}'s minion '{}' has died".format(self.activePlayer.getName(),minion.getName()))
 				self.activePlayer.activeMinions.pop(count)
 				killedAny=True
+				break
 			count += 1
 		count = 0
 		for minion in self.passivePlayer.activeMinions:
@@ -235,6 +306,7 @@ class Game:
 				print("{}'s minion '{}' has died".format(self.passivePlayer.getName(),minion.getName()))
 				self.passivePlayer.activeMinions.pop(count)
 				killedAny=True
+				break
 			count += 1
 		if (killedAny):
 			self.removeDeadMinions()
@@ -242,6 +314,8 @@ class Game:
 
 	def start(self):
 		print("----The game is starting----")
+		self.activePlayer.deck.shuffle()
+		self.passivePlayer.deck.shuffle()
 		self.draw(2,"a")
 		self.draw(2,"p")
 		gameOver = False
@@ -266,7 +340,14 @@ class Game:
 					if not self.canDoSomething():
 						print ("**** You have no more possible actions ****")
 				# try:
-					action = input("Write 'p' to play a card, 'a' to attack, 'e' to end turn, or 'v' to view board: ")
+					if self.canAttack() and self.canPlayCard():
+						action = input("Write 'p' to play a card, 'a' to attack or 'e' to end turn: ")
+					elif self.canAttack():
+						action = input("Write 'a' to attack or 'e' to end turn: ")
+					elif self.canPlayCard():
+						action = input("Write 'p' to play a card or 'e' to end turn: ")
+					else:
+						action = input("Write 'e' to end turn: ")
 					if action == "p":
 
 						# print ("Your hand consists of: ")

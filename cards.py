@@ -27,6 +27,10 @@ class Minion(Card):
 		self.hasAttacked = True
 		self.frozenRounds = 0
 		self.hasCharge = False
+		self.hasTaunt = False
+
+	def giveTaunt(self):
+		self.hasTaunt = True
 
 	def attacked(self):
 		self.hasAttacked = True
