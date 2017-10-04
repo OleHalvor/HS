@@ -4,6 +4,18 @@ class Card:
 		self.type = type
 		self.cost = cost
 		self.name = name
+		self.description = ''
+
+
+	def addDescription(self,desc):
+		if self.type=="Minion":
+			self.description = "{}/{} - {}".format(self.maxAttack,self.maxHealth,desc)
+		else:
+			# print("ikke minion?",self.name)
+			self.description = desc
+
+	def getDescription(self):
+		return self.description
 
 	def getType(self):
 		return self.type
@@ -30,6 +42,7 @@ class Minion(Card):
 		self.frozenRounds = 0
 		self.hasCharge = False
 		self.hasTaunt = False
+		self.addDescription("")
 
 
 
@@ -81,6 +94,7 @@ class Minion(Card):
 
 	def freeze(self,rounds):
 		self.frozenRounds += rounds
+		print(self.name,"is frozen")
 
 	def freezeTick(self):
 		self.frozenRounds = self.frozenRounds -1
@@ -107,7 +121,6 @@ class Spell(Card):
 		Card.__init__(self,name,"Spell",cost)
 		self.damageOne=[0,False] # first value is damage, second is if the target is random
 		self.damageEnemyAOE=[0,False] #First value is damage, second is if the spell also hits face
-		self.description = ''
 		def spellEffect(game):
 			pass
 		self.effect = spellEffect
@@ -121,11 +134,6 @@ class Spell(Card):
 	def addDamageEnemyAOE(self,amount,face):
 		self.damageEnemyAOE=[amount,face]
 
-	def addDescription(self,desc):
-		self.description = desc
-
-	def getDescription(self):
-		return self.description
 
 
 

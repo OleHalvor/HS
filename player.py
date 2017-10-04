@@ -13,6 +13,7 @@ class Player:
 		self.currentMana = 1
 		self.AI=False
 
+
 	def updateActiveHealth(self,minionPosition,newHealth):
 		self.activeMinions[int(minionPosition)].setHealth(newHealth)
 

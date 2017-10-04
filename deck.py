@@ -1,4 +1,5 @@
 import random
+import copy
 class Deck:
 
 	def __init__(self,name):
@@ -6,7 +7,7 @@ class Deck:
 		self.cards = []
 
 	def addCard(self,card):
-		self.cards.append(card)
+		self.cards.append(copy.deepcopy(card))
 
 	def getRemaining(self):
 		return len(self.cards)
