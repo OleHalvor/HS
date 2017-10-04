@@ -1,3 +1,5 @@
+import copy
+import random
 class Player:
 
 	def __init__(self,name,deck):
@@ -9,6 +11,7 @@ class Player:
 		self.activeMinions = []
 		self.maxMana = 1
 		self.currentMana = 1
+		self.AI=False
 
 	def updateActiveHealth(self,minionPosition,newHealth):
 		self.activeMinions[int(minionPosition)].setHealth(newHealth)
@@ -18,13 +21,29 @@ class Player:
 		if self.health > self.maxHealth:
 			self.health = self.maxHealth
 
-
-
 	def getHand(self):
 		return self.hand
 
 	def getHealth(self):
 		return self.health
+
+	def damageMinionOrHero(self,amount):
+		# If nettverk: få target fra nett
+		if not self.AI: #A bit counter intuitive as of now. not self.AI actually means self = AI...
+			if len(self.activeMinions)<=0:
+				index ="f"
+				
+			else:
+				index = random.randint(0,len(self.activeMinions)-1)
+				
+		else:
+			index = input("Hvilken minion vil du skade? ('f' for face): ")
+		if index=="f":
+			self.health = self.health - amount
+			print("Something did",amount,"damage to face")
+		else:
+			self.activeMinions[int(index)].damage(amount)
+			print("Something did",amount,"damage to minion #",index)
 
 	def changeDeck(self,newDeck):
 		self.deck = newDeck
@@ -38,13 +57,8 @@ class Player:
 	def doAction(self):
 		pass
 
-
-
-
 	def attack(self,minion,target):
 		pass
-
-
 
 	def getDeck(self):
 		return self.deck

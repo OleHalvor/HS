@@ -1,3 +1,5 @@
+import random
+import copy
 class Game:
 
 	def __init__(self, player1, player2):
@@ -232,7 +234,7 @@ class Game:
 		print (self.activePlayer.name," played spell: ", spell)
 		print (spell.getName(),"Has the effect:",spell.getDescription())
 		if spell.damageOne[0]>0:
-			if not spell.damageOne[1]:
+			if not spell.damageOne[1] and self.activePlayer.AI==False:
 				target = input("Which minion do you want to damage? ('f' for face): ")
 				if target == "f":
 					self.passivePlayer.reduceHealth(spell.damageOne[0])
@@ -241,7 +243,10 @@ class Game:
 					p2minion = self.passivePlayer.getActiveMinions()[int(target)]
 					p2Health = p2minion.getHealth() - spell.damageOne[0]
 					self.passivePlayer.getActiveMinions()[int(target)].currentHealth=p2Health
-					print(self.activePlayer.getName(),"damaged",p2minion.getName(),spell.damageOne[0],"damage")	
+					print(self.activePlayer.getName(),"damaged",p2minion.getName(),spell.damageOne[0],"damage")
+			else:
+				self.passivePlayer.reduceHealth(spell.damageOne[0])	
+				print(self.activePlayer.getName(),"damaged",self.passivePlayer.getName(),spell.damageOne[0],"damage")	
 		if spell.damageEnemyAOE[0]>0:
 			if spell.damageEnemyAOE[1]:
 				#Spell hits enemy minions and face
@@ -252,6 +257,8 @@ class Game:
 				#Spell hits enemy minions
 				for minion in self.passivePlayer.activeMinions:
 					minion.damage(spell.damageEnemyAOE[0])
+		spell.effect(self)
+		self.ActivateOnSpellCastMinions()
 		self.removeDeadMinions()
 
 	def playMinion(self,cardPosition):
@@ -259,6 +266,14 @@ class Game:
 		print (self.activePlayer.name," played minion: ", tempMinion)
 		self.activePlayer.activeMinions.append(tempMinion)
 		tempMinion.bc(self.activePlayer,self.passivePlayer)
+
+	def ActivateOnSpellCastMinions(self):
+		for minion in self.activePlayer.activeMinions:
+			minion.onSpell(self)
+			minion.onSpellOwnRound(self)
+			# print("spell cast effects activated")
+		for minion in self.passivePlayer.activeMinions:
+			minion.onSpell(self)
 
 	def draw(self,amount,player):
 		if player=="a":
@@ -273,7 +288,16 @@ class Game:
 				self.passivePlayer.hand.append( cardDrawn)
 
 	def attackMinion(self,attacker,p2Pos):
+		pMinions = self.passivePlayer.getActiveMinions()
+		taunts = []
+		for minion in pMinions:
+			if minion.hasTaunt:
+				taunts.append(minion)
 		p2minion = self.passivePlayer.getActiveMinions()[int(p2Pos)]
+		if len(taunts)>0:
+			if not p2minion.hasTaunt:
+				print("*You need to target a minion with taunt*")
+				return False
 		p2Health = p2minion.getHealth() - attacker.getAttack()
 		self.passivePlayer.getActiveMinions()[int(p2Pos)].currentHealth=p2Health
 		p1Health = attacker.getHealth() - p2minion.getAttack()
@@ -291,9 +315,20 @@ class Game:
 		return (aWon,pWon)
 
 	def attackFace(self,attacker):
-		self.passivePlayer.reduceHealth(attacker.getAttack())
-		print(attacker.name,"has attacked",self.passivePlayer.getName())
-		attacker.attacked()
+		if not attacker.hasAttacked:
+			pMinions = self.passivePlayer.getActiveMinions()
+			taunts = []
+			for minion in pMinions:
+				if minion.hasTaunt:
+					taunts.append(minion)
+			if len(taunts)>0:
+				print("You need to attack a minion with taunt")
+				return False
+			self.passivePlayer.reduceHealth(attacker.getAttack())
+			print(attacker.name,"has attacked",self.passivePlayer.getName())
+			attacker.attacked()
+		else:
+			print("that minion has to wait a round to attack")
 
 	def removeDeadMinions(self):
 		killedAny=False
@@ -316,10 +351,34 @@ class Game:
 		if (killedAny):
 			self.removeDeadMinions()
 
+	def getAvailableMoves(self):
+		cards = []
+		minions = []
+		count = 0
+		countminion = 0
+		for card in self.activePlayer.hand:
+			if card.type=="Minion":
+				if self.activePlayer.currentMana >= card.cost:
+					cards.append(count)
+			elif card.type=="Spell":
+				pass
+			else:
+				print ("not minion or spell?")
+			count += 1
+		return cards
+
+
+
 	def start(self):
 		print("----The game is starting----")
 		self.activePlayer.deck.shuffle()
 		self.passivePlayer.deck.shuffle()
+		for card in self.activePlayer.deck.cards:
+			if card.type=="Minion":
+				card.setOwner(self.activePlayer)
+		for card in self.passivePlayer.deck.cards:
+			if card.type=="Minion":
+				card.setOwner(self.passivePlayer)
 		self.draw(2,"a")
 		self.draw(2,"p")
 		gameOver = False
@@ -327,84 +386,183 @@ class Game:
 			roundDone = False
 			while not (roundDone):
 				#New players turn
-				for minion in self.activePlayer.activeMinions:
-					minion.readyToAttack()
-					minion.freezeTick()
-				print("{}'s turn".format(self.activePlayer.getName()))
-				if self.activePlayer.getDeck().getRemaining()>0:
-					self.draw(1,"a")
-				prnt = True
-				while True:
-					if prnt:
-						self.printPassiveHand()
-						self.printGameState()
-						self.printHand()
-					prnt = True
-					if not self.canDoSomething():
-						print ("**** You have no more possible actions ****")
-				# try:
-					if self.canAttack() and self.canPlayCard():
-						action = input("Write 'p' to play a card, 'a' to attack or 'e' to end turn: ")
-					elif self.canAttack():
-						action = input("Write 'a' to attack or 'e' to end turn: ")
-					elif self.canPlayCard():
-						action = input("Write 'p' to play a card or 'e' to end turn: ")
-					else:
-						action = input("Write 'e' to end turn: ")
-					if action == "p":
-						canPlayCard = False
-						for card in self.activePlayer.hand:
-							if card.cost <= self.activePlayer.currentMana:
-								canPlayCard = True
-						if canPlayCard:
-							cardToPlay = input("Which card do you want to play? ('a' to abort) ")
-							if cardToPlay != "a":
-								if not self.playCard(cardToPlay):
-									prnt=False
-								else:
-									prnt=True
-							else:
-								print("Aborting attack")
-						else: 
-							print("****You don't have enough mana to play any cards****")
-							prnt=False
-					if action =="v":
-						pass
-					if action =="e":
-						print ("======== ENDING TURN ========")
-						break
-					if action =="a":
-						attacker = int(input("What index do you want to attack with?: "))
-						target = input("Which minion do you want to attack? ('f' for face): ")
-						aMin = self.activePlayer.getActiveMinions()[attacker]
-						if aMin.hasAttacked:
-							print("\n****You have already attacked with this minion****\n")
-							prnt=False
-						elif aMin.frozenRounds > 0:
-							print("\n****This minion is frozen****\n")
-							prnt=False
-						elif target =='f':
-							self.attackFace(aMin)
-						else:
-							self.attackMinion(aMin,target)
-						self.removeDeadMinions()
-						aWon,pWon = self.didAnyoneWin()
-						if (aWon or pWon):
-							if aWon:
-								print("Player:",self.activePlayer.name,"has won the game!")
-								gameOver = True
-							if pWon:
-								print("Player:",self.passivePlayer.name,"has won the game!")
-								gameOver = True
-							break
+				if self.activePlayer == self.player2:
+				# if 1==2:
+					for minion in self.activePlayer.activeMinions:
+						minion.readyToAttack()
+						minion.freezeTick()
+					# print("{}'s turn".format(self.activePlayer.getName()))
+					if self.activePlayer.getDeck().getRemaining()>0:
+						self.draw(1,"a")
+					self.printPassiveHand()
+					self.printGameState()
+					self.printHand()
 
-					if action =="h":
-						for card in self.activePlayer.hand:
-							print(card)
-				# except:
-				# 	print("USER ERROR!")
-				# 	print("You entered a value that was not good")
-				# 	prnt=False
-				# self.activePlayer.doAction()
-				roundDone=True
+					#BOT STUFF
+					# moves = self.getAvailableMoves()
+					# scores = []
+					# for move in moves:
+					# 	tempActivePlayer = copy.deepcopy(self.activePlayer)
+					# 	tempPassivePlayer = copy.deepcopy(self.passivePlayer)
+					# 	print("Tring card:",move)
+					# 	self.playCard(move)
+
+
+					# 	if (tempPassivePlayer.health<=0):
+					# 		scores.append(999999999)
+					# 	formula = ((len(tempActivePlayer.activeMinions) / 7)*5+((tempPassivePlayer.health/20)*-10))
+					# 	scores.append(formula)
+					# maxScore = -9999
+					# BestMove = -1
+					# count = 0
+					# for score in scores:
+					# 	print("Score: ",score)
+					# 	if score > maxScore:
+					# 		maxScore = score
+					# 		BestMove = count
+					# 	count += 1
+					# print("Best move is:",BestMove)
+					for i in range (len(self.activePlayer.hand)):
+						try:
+							self.playCard(i)
+						except:
+							pass
+					for i in range (len(self.activePlayer.activeMinions)):
+						try:
+							# print("bot prøver face")
+							self.attackFace(self.activePlayer.activeMinions[i])
+						except:
+							print("Fikk error")
+							pass
+					self.removeDeadMinions()
+					aWon,pWon = self.didAnyoneWin()
+					if (aWon or pWon):
+						if aWon:
+							print("Player:",self.activePlayer.name,"has won the game!")
+							gameOver = True
+						if pWon:
+							print("Player:",self.passivePlayer.name,"has won the game!")
+							gameOver = True
+						break
+
+					self.nextTurn()
+					
+
+					# Gjør det heller lett
+					
+				else:
+					for minion in self.activePlayer.activeMinions:
+						minion.readyToAttack()
+						minion.freezeTick()
+					# print("{}'s turn".format(self.activePlayer.getName()))
+					if self.activePlayer.getDeck().getRemaining()>0:
+						self.draw(1,"a")
+					prnt = True
+					while True:
+						if prnt:
+							self.printPassiveHand()
+							self.printGameState()
+							self.printHand()
+						prnt = True
+						if not self.canDoSomething():
+							print ("**** You have no more possible actions ****")
+					# try:
+						if self.canAttack() and self.canPlayCard():
+							action = input("Write 'p' to play a card, 'a' to attack or 'e' to end turn: ")
+						elif self.canAttack():
+							action = input("Write 'a' to attack or 'e' to end turn: ")
+						elif self.canPlayCard():
+							action = input("Write 'p' to play a card or 'e' to end turn: ")
+						else:
+							action = input("Write 'e' to end turn: ")
+						if action == "p":
+							canPlayCard = False
+							for card in self.activePlayer.hand:
+								if card.cost <= self.activePlayer.currentMana:
+									canPlayCard = True
+							if canPlayCard:
+								cardToPlay = input("Which card do you want to play? ('a' to abort) ")
+								if cardToPlay != "a" and not cardToPlay=="":
+									if not self.playCard(cardToPlay):
+										prnt=False
+									else:
+										prnt=True
+								else:
+									print("Aborting attack")
+							else: 
+								print("****You don't have enough mana to play any cards****")
+								prnt=False
+						if action =="v":
+							pass
+						if action =="e":
+							print ("======== ENDING TURN ========")
+							break
+						if action =="a":
+							attacker = int(input("What index do you want to attack with?: "))
+							if attacker >= len(self.activePlayer.activeMinions):
+								print("\nThat index was too high")
+
+							else:
+								taunts = []
+								for minion in self.passivePlayer.activeMinions:
+									if minion.hasTaunt:
+										taunts.append(minion)
+								target = input("Which minion do you want to attack? ('f' for face): ")
+								print("")
+								aMin = self.activePlayer.getActiveMinions()[attacker]
+								if len(taunts)>0:
+										if not aMin.hasTaunt:
+											print("You need to target a minion with taunt")
+										else:
+											if aMin.hasAttacked:
+												print("\n****You have already attacked with this minion****\n")
+												prnt=False
+											elif aMin.frozenRounds > 0:
+												print("\n****This minion is frozen****\n")
+												prnt=False
+											elif target =='f':
+												self.attackFace(aMin)
+											else:
+												self.attackMinion(aMin,target)
+											self.removeDeadMinions()
+											aWon,pWon = self.didAnyoneWin()
+											if (aWon or pWon):
+												if aWon:
+													print("Player:",self.activePlayer.name,"has won the game!")
+													gameOver = True
+												if pWon:
+													print("Player:",self.passivePlayer.name,"has won the game!")
+													gameOver = True
+												break	
+								else:
+									if aMin.hasAttacked:
+										print("\n****You have already attacked with this minion****\n")
+										prnt=False
+									elif aMin.frozenRounds > 0:
+										print("\n****This minion is frozen****\n")
+										prnt=False
+									elif target =='f':
+										self.attackFace(aMin)
+									else:
+										self.attackMinion(aMin,target)
+									self.removeDeadMinions()
+									aWon,pWon = self.didAnyoneWin()
+									if (aWon or pWon):
+										if aWon:
+											print("Player:",self.activePlayer.name,"has won the game!")
+											gameOver = True
+										if pWon:
+											print("Player:",self.passivePlayer.name,"has won the game!")
+											gameOver = True
+										break
+
+						if action =="h":
+							for card in self.activePlayer.hand:
+								print(card)
+					# except:
+					# 	print("USER ERROR!")
+					# 	print("You entered a value that was not good")
+					# 	prnt=False
+					# self.activePlayer.doAction()
+					roundDone=True
 			self.nextTurn()

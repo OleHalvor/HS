@@ -24,16 +24,48 @@ class Minion(Card):
 		self.defaultAttack = attack
 		self.currentHealth = health
 		self.currentAttack = attack
+		self.maxHealth = health
+		self.maxAttack = attack
 		self.hasAttacked = True
 		self.frozenRounds = 0
 		self.hasCharge = False
 		self.hasTaunt = False
+
+
+
 		def start(activePlayer,passivePlayer):
 			pass
 		self.onRoundStart = start
 		def battleCryF(activePlayer,passivePlayer):
 			pass
 		self.bc = battleCryF
+		def onSpellCastF(game):
+			pass
+		self.onSpell = onSpellCastF
+		def onSpellCastOwnRound(game):
+			pass
+		self.onSpellOwnRound = onSpellCastOwnRound
+		self.owner = None
+
+	def buff(self,attack,health):
+		self.maxHealth += health
+		self.maxAttack += attack
+		self.currentHealth += health
+		self.currentAttack += attack
+
+	def heal(self,amount):
+		self.currentHealth = self.currentHealth + amount
+		if self.currentHealth > self.maxHealth:
+			self.currentHealth = self.maxHealth
+
+	def setOwner(self,player):
+		self.owner = player
+
+	def setOnSpellOwnRound(self,action):
+		self.onSpellOwnRound = action
+
+	def setOnSpellCast(self,action):
+		self.onSpell = action
 
 	def setBattlecry(self,action):
 		self.bc = action
@@ -76,7 +108,12 @@ class Spell(Card):
 		self.damageOne=[0,False] # first value is damage, second is if the target is random
 		self.damageEnemyAOE=[0,False] #First value is damage, second is if the spell also hits face
 		self.description = ''
+		def spellEffect(game):
+			pass
+		self.effect = spellEffect
 
+	def setEffect(self,effect):
+		self.effect = effect
 
 	def addDamageOne(self,amount,rng):
 		self.damageOne=[amount,rng]
