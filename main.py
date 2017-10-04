@@ -23,13 +23,13 @@ footman = Minion("Goldshire Footman",1,1,2)
 footman.giveTaunt()
 
 selv = Minion("Selvskader",1,1,1)
-def selvskad(activePlayer,passivePlayer):
-	activePlayer.health = activePlayer.health - 5
+def selvskad(game):
+	self.activePlayer.health = self.activePlayer.health - 5
 selv.setBattlecry(selvskad)
 
 munk = Minion("Munken",1,1,1)
-def skad5(activePlayer,passivePlayer):
-	passivePlayer.damageMinionOrHero(5)
+def skad5(game):
+	self.passivePlayer.damageMinionOrHero(5)
 munk.setBattlecry(skad5)
 
 bjarne = Minion("Bjarne",2,1,2)
@@ -81,30 +81,51 @@ def bokEffect(game):
 			game.activePlayer.activeMinions[randint(0,len(game.activePlayer.activeMinions))]
 bok.setEffect(bokEffect)
 	
-
+dataVirus = Minion("Datavirus",2,2,2)
+def frysTreFiender(game):
+	numberOfEnemies = len(game.passivePlayer.activeMinions)
+	if numberOfEnemies == 0:
+		pass
+	elif numberOfEnemies ==1:
+		game.passivePlayer.activeMinions[0].freeze(2)
+	elif numberOfEnemies == 2:
+		game.passivePlayer.activeMinions[0].freeze(2)
+		game.passivePlayer.activeMinions[1].freeze(2)
+	elif numberOfEnemies == 3:
+		game.passivePlayer.activeMinions[0].freeze(2)
+		game.passivePlayer.activeMinions[1].freeze(2)
+		game.passivePlayer.activeMinions[2].freeze(2)
+	else:
+		toBeFrozen = numberOfEnemies.pop(randint(numberOfEnemies-1))
+		toBeFrozen2 = numberOfEnemies.pop(randint(numberOfEnemies-2))
+		toBeFrozen3 = numberOfEnemies.pop(randint(numberOfEnemies-3))
+		game.passivePlayer.activeMinions[toBeFrozen].freeze(2)
+		game.passivePlayer.activeMinions[toBeFrozen2].freeze(2)
+		game.passivePlayer.activeMinions[toBeFrozen3].freeze(2)
+dataVirus.setBattlecry(frysTreFiender)
 
 
 
 deck1 = Deck("deck 1")
 deck1.addCard(copy.deepcopy(fireball))
-deck1.addCard(fireball)
-deck1.addCard(concecration)
-deck1.addCard(flamestrike)
-deck1.addCard(copy.deepcopy(footman))
-deck1.addCard(copy.deepcopy(footman))
-deck1.addCard(copy.deepcopy(footman))
-deck1.addCard(copy.deepcopy(footman))
-deck1.addCard(copy.deepcopy(footman))
-deck1.addCard(copy.deepcopy(footman))
+deck1.addCard(copy.deepcopy(fireball))
+deck1.addCard(copy.deepcopy(concecration))
+deck1.addCard(copy.deepcopy(flamestrike))
+deck1.addCard(copy.deepcopy(dataVirus))
+deck1.addCard(copy.deepcopy(dataVirus))
+deck1.addCard(copy.deepcopy(dataVirus))
+deck1.addCard(copy.deepcopy(dataVirus))
+deck1.addCard(copy.deepcopy(dataVirus))
+deck1.addCard(copy.deepcopy(dataVirus))
 deck1.addCard(copy.deepcopy(footman))
 deck1.addCard(copy.deepcopy(footman))
 deck1.addCard(copy.deepcopy(bjarne))
-deck1.addCard(swipe)
+deck1.addCard(copy.deepcopy(swipe))
 deck1.addCard(copy.deepcopy(yeti))
 deck1.addCard(copy.deepcopy(bjarne))
 deck1.addCard(copy.deepcopy(flowerGirl))
-deck1.addCard(swipe)
-deck1.addCard(swipe)
+deck1.addCard(copy.deepcopy(swipe))
+deck1.addCard(copy.deepcopy(swipe))
 deck1.addCard(copy.deepcopy(wildPyro))
 deck1.addCard(copy.deepcopy(wildPyro))
 deck1.addCard(copy.deepcopy(darkBomb))

@@ -193,7 +193,7 @@ class Game:
 
 	def activateRoundStartMinions(self):
 		for minion in self.activePlayer.activeMinions:
-			minion.onRoundStart(self.activePlayer,self.passivePlayer)
+			minion.onRoundStart(self)
 
 	def mulligan(self):
 		pass
@@ -265,7 +265,7 @@ class Game:
 		tempMinion = self.activePlayer.hand.pop(cardPosition)
 		print (self.activePlayer.name," played minion: ", tempMinion)
 		self.activePlayer.activeMinions.append(tempMinion)
-		tempMinion.bc(self.activePlayer,self.passivePlayer)
+		tempMinion.bc(self)
 
 	def ActivateOnSpellCastMinions(self):
 		for minion in self.activePlayer.activeMinions:
@@ -315,7 +315,7 @@ class Game:
 		return (aWon,pWon)
 
 	def attackFace(self,attacker):
-		if not attacker.hasAttacked:
+		if not attacker.hasAttacked and attacker.frozenRounds<=0:
 			pMinions = self.passivePlayer.getActiveMinions()
 			taunts = []
 			for minion in pMinions:
@@ -394,9 +394,9 @@ class Game:
 					# print("{}'s turn".format(self.activePlayer.getName()))
 					if self.activePlayer.getDeck().getRemaining()>0:
 						self.draw(1,"a")
-					self.printPassiveHand()
-					self.printGameState()
-					self.printHand()
+					# self.printPassiveHand()
+					# self.printGameState()
+					# self.printHand()
 
 					#BOT STUFF
 					# moves = self.getAvailableMoves()

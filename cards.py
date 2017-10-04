@@ -33,10 +33,10 @@ class Minion(Card):
 
 
 
-		def start(activePlayer,passivePlayer):
+		def start(game):
 			pass
 		self.onRoundStart = start
-		def battleCryF(activePlayer,passivePlayer):
+		def battleCryF(game):
 			pass
 		self.bc = battleCryF
 		def onSpellCastF(game):
