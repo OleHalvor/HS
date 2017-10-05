@@ -80,6 +80,17 @@ class Game:
 			print("   {}  -  {}   - {}:  {}".format(c,card.cost,card.name,card.description))
 			c+=1
 
+	def printDetails(self):
+		print("Enemy minions:")
+		for minion in self.passivePlayer.activeMinions:
+			print("{}-{}-{}".format(minion.name,minion.currentAttack,minion.currentHealth,minion.description))
+		print("Your minions:")
+		for minion in self.activePlayer.activeMinions:
+			print("{}-{}-{}".format(minion.name,minion.currentAttack,minion.currentHealth,minion.description))
+		print("Your hand:")
+		for card in self.activePlayer.hand:
+			print("{}-{}-{}".format(card.cost,card.name,card.description))
+
 	def printPassiveHand(self):
 		line0=''
 		line1=''
@@ -157,7 +168,10 @@ class Game:
 			hasAttacked = activeM[i].hasAttacked
 			frozRounds = activeM[i].frozenRounds
 			hasTaunt = activeM[i].hasTaunt
-			line00+="{} {} - ".format(i,activeM[i].getName())
+			tempString = activeM[i].getName()
+			if len(tempString)>7:
+				tempString = tempString[0:5]+".."
+			line00+="{}- ".format(tempString)
 			line0+=" _____  "
 			if not hasAttacked and frozRounds<=0 :
 				line1+="|{}    | ".format(activeM[i].cost)
@@ -354,6 +368,13 @@ class Game:
 		tempMinion.bc(self)
 		self.removeDeadMinions()
 
+	def summonMinion(self,minion,player): #Summon minion, called from effects in other cards
+		newMinion = copy.deepcopy(minion)
+		player.activeMinions.append(copy.deepcopy(newMinion))
+		newMinion.bc(self)
+		self.removeDeadMinions()
+
+
 	def ActivateOnSpellCastMinions(self):
 		for minion in self.activePlayer.activeMinions:
 			minion.onSpell(self)
@@ -423,16 +444,20 @@ class Game:
 		count = 0
 		for minion in self.activePlayer.activeMinions:
 			if minion.currentHealth<=0:
+				
 				print("{}'s minion '{}' has died".format(self.activePlayer.getName(),minion.getName()))
 				self.activePlayer.activeMinions.pop(count)
+				minion.dr(self,minion) #DeathRattle
 				killedAny=True
 				break
 			count += 1
 		count = 0
 		for minion in self.passivePlayer.activeMinions:
 			if minion.currentHealth<=0:
+				
 				print("{}'s minion '{}' has died".format(self.passivePlayer.getName(),minion.getName()))
 				self.passivePlayer.activeMinions.pop(count)
+				minion.dr(self,minion) #DeathRattle
 				killedAny=True
 				break
 			count += 1
@@ -656,6 +681,9 @@ class Game:
 						if action =="h":
 							for card in self.activePlayer.hand:
 								print(card)
+						elif action =="d":
+							self.printDetails()
+							prnt=False
 					# except:
 					# 	print("USER ERROR!")
 					# 	print("You entered a value that was not good")
@@ -663,3 +691,7 @@ class Game:
 					# self.activePlayer.doAction()
 					roundDone=True
 			self.nextTurn()
+
+	def titt(self,player,amount):
+		for i in range(amount):
+			print(player.deck.cards[-1-i])

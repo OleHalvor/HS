@@ -73,7 +73,18 @@ def wildPyroEffect(game):
 wildPyro.setOnSpellOwnRound(wildPyroEffect)
 
 
-	
+juksePave = Minion("Juksepave",2,3,3)
+def juksePaveFunc(game):
+	# heal = input("Who do you want to heal 5?")
+	# if heal=="f":
+	# 	pass
+	# else:
+	# 	pass
+	game.titt(game.activePlayer,4)
+juksePave.setBattlecry(juksePaveFunc)
+
+
+
 dataVirus = Minion("Datavirus",2,2,2)
 def frysTreFiender(game):
 	numberOfEnemies = len(game.passivePlayer.activeMinions)
@@ -146,6 +157,16 @@ def frostBoltEffect(game):
 frostbolt.setEffect(frostBoltEffect)
 
 
+# Star med boombots uten DR
+drBoom = Minion("Dr. Boom",1,2,2)
+def boomFunc(game,minion): #Deathrattle
+	print("Boom DR",minion.owner)
+	boomBot0 = Minion("BoomBot",1,1,1)
+	boomBot1 = Minion("BoomBot",1,1,1)
+	game.summonMinion(boomBot0,minion.owner)
+	game.summonMinion(boomBot1,minion.owner)
+drBoom.setDeathRattle(boomFunc)
+
 
 
 
@@ -153,8 +174,6 @@ frostbolt.setEffect(frostBoltEffect)
 #copy.deepcopy no longer needed
 
 deck1 = Deck("deck 1")
-deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
 deck1.addCard(frostbolt)
 deck1.addCard(frostbolt)
 deck1.addCard(copy.deepcopy(fireball))
@@ -182,6 +201,21 @@ deck1.addCard(copy.deepcopy(superHeal))
 deck1.addCard(copy.deepcopy(superHeal))
 deck1.addCard(copy.deepcopy(bok))
 deck1.addCard(copy.deepcopy(bok))
+deck1.addCard(juksePave)
+deck1.addCard(juksePave)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
+deck1.addCard(drBoom)
 
 
 

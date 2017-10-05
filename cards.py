@@ -42,10 +42,13 @@ class Minion(Card):
 		self.frozenRounds = 0
 		self.hasCharge = False
 		self.hasTaunt = False
+
 		self.addDescription("")
 
 
-
+		def deathRattleF(game,minion):
+			pass
+		self.dr = deathRattleF
 		def start(game):
 			pass
 		self.onRoundStart = start
@@ -59,6 +62,9 @@ class Minion(Card):
 			pass
 		self.onSpellOwnRound = onSpellCastOwnRound
 		self.owner = None
+
+	def setDeathRattle(self,action):
+		self.dr = action
 
 	def buff(self,attack,health):
 		self.maxHealth += health
