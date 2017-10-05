@@ -93,10 +93,12 @@ class Minion(Card):
 		self.hasAttacked = False
 
 	def freeze(self,rounds):
-		self.frozenRounds += rounds
-		print(self.name,"is frozen")
+		self.frozenRounds += rounds+1
+		
 
 	def freezeTick(self):
+		if self.frozenRounds == 1:
+			print("{}'s {} is no longer frozen".format(self.owner.name, self.name))
 		self.frozenRounds = self.frozenRounds -1
 		if self.frozenRounds <0:
 			self.frozenRounds = 0

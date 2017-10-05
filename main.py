@@ -80,21 +80,21 @@ def frysTreFiender(game):
 	if numberOfEnemies == 0:
 		pass
 	elif numberOfEnemies ==1:
-		game.passivePlayer.activeMinions[0].freeze(2)
+		game.passivePlayer.activeMinions[0].freeze(1)
 	elif numberOfEnemies == 2:
-		game.passivePlayer.activeMinions[0].freeze(2)
-		game.passivePlayer.activeMinions[1].freeze(2)
+		game.passivePlayer.activeMinions[0].freeze(1)
+		game.passivePlayer.activeMinions[1].freeze(1)
 	elif numberOfEnemies == 3:
-		game.passivePlayer.activeMinions[0].freeze(2)
-		game.passivePlayer.activeMinions[1].freeze(2)
-		game.passivePlayer.activeMinions[2].freeze(2)
+		game.passivePlayer.activeMinions[0].freeze(1)
+		game.passivePlayer.activeMinions[1].freeze(1)
+		game.passivePlayer.activeMinions[2].freeze(1)
 	else:
 		toBeFrozen = numberOfEnemies.pop(randint(numberOfEnemies-1))
 		toBeFrozen2 = numberOfEnemies.pop(randint(numberOfEnemies-2))
 		toBeFrozen3 = numberOfEnemies.pop(randint(numberOfEnemies-3))
-		game.passivePlayer.activeMinions[toBeFrozen].freeze(2)
-		game.passivePlayer.activeMinions[toBeFrozen2].freeze(2)
-		game.passivePlayer.activeMinions[toBeFrozen3].freeze(2)
+		game.passivePlayer.activeMinions[toBeFrozen].freeze(1)
+		game.passivePlayer.activeMinions[toBeFrozen2].freeze(1)
+		game.passivePlayer.activeMinions[toBeFrozen3].freeze(1)
 dataVirus.setBattlecry(frysTreFiender)
 dataVirus.addDescription("Freezes three random enemy minions")
 
@@ -132,13 +132,13 @@ def frostBoltEffect(game):
 			game.passivePlayer.reduceHealth(3)
 		else:
 			game.passivePlayer.activeMinions[int(target)].damage(3)
-			game.passivePlayer.activeMinions[int(target)].freeze(2)
+			game.passivePlayer.activeMinions[int(target)].freeze(1)
 	else:
 		targetMinions = game.passivePlayer.activeMinions
 		if len(targetMinions)>0:
 			target = targetMinions[randint(0,len(targetMinions))]
 			target.damage(3)
-			target.freeze(2)
+			target.freeze(1)
 			print("Frostbolt hit target",target.name)
 		else:
 			print("Frostbolt hit face")
@@ -195,6 +195,6 @@ player2 = Player("Player two",deck2)
 player2.AI=True
 
 game = Game(player1,player2)
-# game.start()
-game.initialize(player1,player2)
+game.start()
+# game.initialize(player1,player2)
 

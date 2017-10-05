@@ -15,14 +15,28 @@ class Game:
 		self.BUFFER_SIZE = 1024
 		self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 		self.playersConnected = 0
+		self.localGame = True
+		self.againstAI = False
+
+
+	def customPrint(text):
+		if not self.localGame and not self.againstAI:
+			self.activePlayer.connection.send(text.encode())
+		else:
+			print(text)
+
 
 
 
 	def getInput(self,description):
-		addr = self.activePlayer.IP
-		conn = self.activePlayer.connection
-		conn.send(description.encode())
-		return conn.recv(1024).decode()
+		if not self.localGame:
+			addr = self.activePlayer.IP
+			conn = self.activePlayer.connection
+			message=description
+			conn.send(message.encode())
+			return conn.recv(1024).decode()
+		else:
+			return (input(description))
 
 
 
@@ -148,6 +162,7 @@ class Game:
 			if not hasAttacked and frozRounds<=0 :
 				line1+="|{}    | ".format(activeM[i].cost)
 			elif frozRounds>0:
+				# print("FrozenRounds:",frozRounds)
 				line1+="|{}   F| ".format(activeM[i].cost)
 			else:
 				line1+="|{}   Z| ".format(activeM[i].cost)
@@ -250,6 +265,10 @@ class Game:
 			self.nextRound()
 		self.activateRoundStartMinions()
 		# print (self.activePlayer.getName()+"'s turn")
+		for minion in self.activePlayer.activeMinions:
+			minion.hasAttacked=False
+		for minion in self.passivePlayer.activeMinions:
+			minion.hasAttacked=False
 
 	def nextRound(self):
 		self.passivePlayer.maxMana += 1
@@ -292,7 +311,8 @@ class Game:
 				self.playSpell(int(cardPosition))
 			return True
 		else:
-			print("You don't have enough mana")
+			if self.activePlayer.AI==False:
+				print("You don't have enough mana")
 			return False
 
 	def playSpell(self,cardPosition):
@@ -395,7 +415,8 @@ class Game:
 			print(attacker.name,"has attacked",self.passivePlayer.getName())
 			attacker.attacked()
 		else:
-			print("that minion has to wait a round to attack")
+			if self.activePlayer.AI==False:
+				print("that minion has to wait a round to attack")
 
 	def removeDeadMinions(self):
 		killedAny=False
@@ -453,11 +474,14 @@ class Game:
 			roundDone = False
 			while not (roundDone):
 				#New players turn
+				for minion in self.activePlayer.activeMinions:
+					minion.readyToAttack()
+					minion.freezeTick()
+				for minion in self.passivePlayer.activeMinions:
+					minion.readyToAttack()
+					minion.freezeTick()
 				if self.activePlayer.AI:
 				# if 1==2:
-					for minion in self.activePlayer.activeMinions:
-						minion.readyToAttack()
-						minion.freezeTick()
 					# print("{}'s turn".format(self.activePlayer.getName()))
 					if self.activePlayer.getDeck().getRemaining()>0:
 						self.draw(1,"a")
@@ -518,9 +542,6 @@ class Game:
 					# Gjør det heller lett
 					
 				else:
-					for minion in self.activePlayer.activeMinions:
-						minion.readyToAttack()
-						minion.freezeTick()
 					# print("{}'s turn".format(self.activePlayer.getName()))
 					if self.activePlayer.getDeck().getRemaining()>0:
 						self.draw(1,"a")
