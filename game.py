@@ -1,6 +1,7 @@
 import random
 import copy
 import textwrap
+import socket
 class Game:
 
 	def __init__(self, player1, player2):
@@ -9,6 +10,54 @@ class Game:
 		self.activePlayer = player1
 		self.passivePlayer = player2
 		self.turnCounter = 0
+		self.TCP_IP = '127.0.0.1'
+		self.TCP_PORT = 5005
+		self.BUFFER_SIZE = 1024
+		self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+		self.playersConnected = 0
+
+
+
+	def getInput(self,description):
+		addr = self.activePlayer.IP
+		conn = self.activePlayer.connection
+		conn.send(description.encode())
+		return conn.recv(1024).decode()
+
+
+
+	def startServer(self):
+		self.s.bind((self.TCP_IP, self.TCP_PORT))
+		self.s.listen(1)
+		print("Waiting for clients to connect")
+
+		while 1:
+			conn, addr = self.s.accept()
+			print("Connection from:",addr)
+			if self.playersConnected==0:
+				data = conn.recv(1024).decode()
+				print("received data:",data)
+				# conn.send("Received".encode())
+				if data=="Player":
+					self.player1.IP=addr
+					self.player1.connection = conn
+					print("Player 1 is:",addr)
+					self.player2.IP=addr
+					self.player2.connection = conn
+					print("Player 2 is:",addr)
+					break
+			# elif self.playersConnected==1:
+			# 	data = conn.recv(1024).decode()
+			# 	print("received data:",data)
+			# 	# conn.send("Received".encode())
+			# 	if data=="Player":
+			# 		self.player2.IP=addr
+			# 		self.player2.connection = conn
+			# 		print("Player 2 is:",addr)
+	def initialize(self,player1,player2):
+		self.startServer()
+		self.start()
+
 	
 	def printCardDescription(self,cards):
 		c = 0
@@ -486,13 +535,13 @@ class Game:
 							print ("**** You have no more possible actions ****")
 					# try:
 						if self.canAttack() and self.canPlayCard():
-							action = input("Write 'p' to play a card, 'a' to attack or 'e' to end turn: ")
+							action = self.getInput("Write 'p' to play a card, 'a' to attack or 'e' to end turn: ")
 						elif self.canAttack():
-							action = input("Write 'a' to attack or 'e' to end turn: ")
+							action = self.getInput("Write 'a' to attack or 'e' to end turn: ")
 						elif self.canPlayCard():
-							action = input("Write 'p' to play a card or 'e' to end turn: ")
+							action = self.getInput("Write 'p' to play a card or 'e' to end turn: ")
 						else:
-							action = input("Write 'e' to end turn: ")
+							action = self.getInput("Write 'e' to end turn: ")
 						if action == "p":
 							self.printCardDescription(self.activePlayer.hand)
 							canPlayCard = False

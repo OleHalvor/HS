@@ -12,7 +12,13 @@ class Player:
 		self.maxMana = 1
 		self.currentMana = 1
 		self.AI=False
+		self.IP='127.0.0.1'
+		self.connection = ''
 
+
+	def setIpAndPort(ip,port):
+		self.IP = ip 
+		self.PORT = port
 
 	def updateActiveHealth(self,minionPosition,newHealth):
 		self.activeMinions[int(minionPosition)].setHealth(newHealth)

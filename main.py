@@ -195,5 +195,6 @@ player2 = Player("Player two",deck2)
 player2.AI=True
 
 game = Game(player1,player2)
-game.start()
+# game.start()
+game.initialize(player1,player2)
 
