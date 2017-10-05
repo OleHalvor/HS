@@ -372,6 +372,7 @@ class Game:
 		newMinion = copy.deepcopy(minion)
 		player.activeMinions.append(copy.deepcopy(newMinion))
 		newMinion.bc(self)
+		newMinion.setOwner(player)
 		self.removeDeadMinions()
 
 

@@ -3,6 +3,7 @@ from deck import Deck
 from player import Player
 from game import Game
 import copy
+import random
 
 #This is the main file of the game, i.e. this is the file you run.
 #This is also the file where you define cards, decks and players
@@ -157,12 +158,38 @@ def frostBoltEffect(game):
 frostbolt.setEffect(frostBoltEffect)
 
 
+
+def boomBotFunc(game,minion):
+	damage = random.randint(1,4)
+	#Random 4 damage
+	player = random.randint(0,1)
+	if player==1:
+		possibleTargets = game.passivePlayer.activeMinions
+		target = random.randint(0,len(possibleTargets))
+		if target == len(possibleTargets):
+			game.passivePlayer.reduceHealth(damage)
+			print("Boombot died and did",damage,"to",game.passivePlayer.name)
+		else:
+			game.passivePlayer.activeMinions[target].damage(damage)
+			print("Boombot died and did",damage,"to",game.passivePlayer.activeMinions[target].name)
+	elif player==0:
+		possibleTargets = game.activePlayer.activeMinions
+		target = random.randint(0,len(possibleTargets))
+		if target == len(possibleTargets):
+			game.activePlayer.reduceHealth(damage)
+			print("Boombot died and did",damage,"to",game.activePlayer.name)
+		else:
+			game.activePlayer.activeMinions[target].damage(damage)
+			print("Boombot died and did",damage,"to",game.activePlayer.activeMinions[target].name)
+
 # Star med boombots uten DR
 drBoom = Minion("Dr. Boom",1,2,2)
 def boomFunc(game,minion): #Deathrattle
-	print("Boom DR",minion.owner)
+	print("Dr boom died an spawned two boombots for",minion.owner)
 	boomBot0 = Minion("BoomBot",1,1,1)
 	boomBot1 = Minion("BoomBot",1,1,1)
+	boomBot0.setDeathRattle(boomBotFunc)
+	boomBot1.setDeathRattle(boomBotFunc)
 	game.summonMinion(boomBot0,minion.owner)
 	game.summonMinion(boomBot1,minion.owner)
 drBoom.setDeathRattle(boomFunc)
