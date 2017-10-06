@@ -22,6 +22,35 @@ class Game:
 		self.againstAI = True
 		self.simulation= True
 
+	def evaluateState(game):
+		totalAttackAndHealYourSide = 0 # Høyere er bedre
+		totalAttackAndHealEnemySide = 0 # Lavere er bedre
+		yourHealth = game.activePlayer.health # Høyere er bedre
+		enemyHealth = game.passivePlayer.health # Lavere er bedre
+		ownHandLength = len(game.activePlayer.hand)
+		enemyHandLength = len(game.passivePlayer.hand)
+		for minion in game.activePlayer.activeMinions:
+			totalAttackAndHealYourSide += minion.currentAttack + minion.currentHealth
+		for minion in game.passivePlayer.activeMinions:
+			totalAttackAndHealEnemySide += minion.currentAttack + minion.currentHealth
+			
+		yourHealthScale = yourHealth/30
+		enemyHealthScale = enemyHealth/30
+		ownHandLengthScale = ownHandLength/10
+		enemyHandLengthScale = enemyHandLength/10
+		totalAttackAndHealYourSideScale = totalAttackAndHealYourSide / 30
+		totalAttackAndHealEnemySideScale = totalAttackAndHealEnemySide / 30
+		utility = (enemyHealthScale*((yourHealthScale*-5)+(ownHandLengthScale*-1)+(enemyHandLengthScale)+(totalAttackAndHealYourSide*-1)+(totalAttackAndHealEnemySideScale)))
+		utility = (enemyHealthScale * 10) - (yourHealthScale*10) + (totalAttackAndHealEnemySideScale) - (totalAttackAndHealYourSideScale) + (enemyHandLengthScale*0.3) - (ownHandLengthScale*0.3)
+		# 0 utility is optimal state
+		return utility
+
+	def generateBestLegalMove(game):
+		# #            what to do, which card, which target
+		# bestMove = ["playCard",0,1]
+		# bestMove = ["attackFace",1]
+		# bestMove = ["attackMinion",1,0]
+		pass
 
 	def customPrint(text):
 		if not self.localGame and not self.againstAI:
@@ -96,7 +125,7 @@ class Game:
 				if len(tempName)>longestName-1:
 					tempName=tempName[0:longestName]
 				tempType = "{0:<6}".format(minion.type)
-				print("  {4} - {1} - {2}".format(minion.cost,tempName,minion.description,tempType,count))
+				print("  {4} - {1} - {5}/{6} - {2}".format(minion.cost,tempName,minion.description,tempType,count,minion.currentAttack,minion.currentHealth))
 			count += 1	
 		print("")
 
@@ -122,7 +151,7 @@ class Game:
 					tempType += " - N/A"
 					print("  {4} - {0}  - {1} - {3} - {2}".format(card.cost,tempName,card.description,tempType,count))
 				else:
-					print("  {4} - {0}  - {1} - {3} - {2}".format(card.cost,tempName,card.description,tempType,count))
+					print("  {4} - {0}  - {1} - {3} - {5}/{6} - {2}".format(card.cost,tempName,card.description,tempType,count,card.currentAttack,card.currentHealth))
 			count += 1	
 		print("")
 
@@ -446,7 +475,7 @@ class Game:
 			if len(tempName)>longestName-1:
 				tempName=tempName[0:longestName-1]
 			tempType = "{0:<6}".format(enemyMinions[target].type)
-			print("  {4} - {1} - {2}".format(enemyMinions[target].cost,tempName,enemyMinions[target].description,tempType,targets[count]))
+			print("  {4} - {1} - {2} - {5}/{6} - {3}".format(enemyMinions[target].cost,tempName,enemyMinions[target].description,tempType,targets[count],enemyMinions[target].currentAttack,enemyMinions[target].currentHealth))
 			count += 1
 		if face:
 			print("  f - FACE")
@@ -763,6 +792,7 @@ class Game:
 						self.printPassiveHand()
 						self.printGameState()
 						self.printHand()
+						print(self.evaluateState())
 					if self.activePlayer.getDeck().getRemaining()>0:
 						self.draw(1,"a")
 					for i in range (len(self.activePlayer.hand)):
@@ -775,7 +805,7 @@ class Game:
 					for k in range(0,10):
 						for i in range (len(self.activePlayer.activeMinions)):
 							face = random.randint(0,10)
-							if face>8:
+							if face>2:
 								try:
 									# print("bot går face")
 									self.attackFace(self.activePlayer.activeMinions[i])
@@ -792,7 +822,12 @@ class Game:
 									
 								except:
 									pass
-					time.sleep(1)
+					if self.activePlayer == self.player1:
+						self.printPassiveHand()
+						self.printGameState()
+						self.printHand()		
+						print(self.evaluateState())
+						time.sleep(3)
 					# if self.removeDeadMinions():
 					# 	time.sleep(3)
 					aWon,pWon = self.didAnyoneWin()
@@ -800,15 +835,9 @@ class Game:
 						if aWon:
 							print("Player:",self.activePlayer.name,"has won the game!")
 							gameOver = True
-							self.printPassiveHand()
-							self.printGameState()
-							self.printHand()
 						if pWon:
 							print("Player:",self.passivePlayer.name,"has won the game!")
 							gameOver = True
-							self.printPassiveHand()
-							self.printGameState()
-							self.printHand()
 						break
 					print ("======== YOUR TURN ========")
 					self.nextTurn()
@@ -824,6 +853,7 @@ class Game:
 							self.printPassiveHand()
 							self.printGameState()
 							self.printHand()
+							print(self.evaluateState())
 						prnt = True
 						if not self.canDoSomething():
 							print ("**** You have no more possible actions ****")

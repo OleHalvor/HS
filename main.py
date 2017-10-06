@@ -360,6 +360,7 @@ def manaWyrmEffect(game,minion):
 	minion.maxAttack += 1
 	minion.currentAttack += 1
 manaWyrm.setOnSpellOwnRound(manaWyrmEffect)
+manaWyrm.setDescription("+1 attack when you cast a spell")
 
 
 

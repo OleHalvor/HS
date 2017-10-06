@@ -8,11 +8,7 @@ class Card:
 
 
 	def setDescription(self,desc):
-		if self.type=="Minion":
-			self.description = "{}/{} - {}".format(self.maxAttack,self.maxHealth,desc)
-		else:
-			# print("ikke minion?",self.name)
-			self.description = desc
+		self.description = desc
 
 	def getDescription(self):
 		return self.description
@@ -115,6 +111,8 @@ class Minion(Card):
 
 	def setTaunt(self,value):
 		self.hasTaunt = value
+		if value == True:
+			self.description = "Taunt -" + self.description
 
 	def attacked(self):
 		self.hasAttacked = True
