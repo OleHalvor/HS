@@ -3,6 +3,8 @@ import copy
 import textwrap
 import socket
 import time
+from cards import Spell, Minion, Card
+
 class Game:
 
 	def __init__(self, player1, player2):
@@ -410,7 +412,7 @@ class Game:
 			return False
 		spell = self.activePlayer.hand.pop(cardPosition)
 		print (self.activePlayer.name," played spell: ", spell)
-		print (spell.getName(),"Has the effect:",spell.getDescription())
+		# print (spell.getName(),"Has the effect:",spell.getDescription())
 		if spell.damageOne[0]>0:
 			if not spell.damageOne[1] and self.activePlayer.AI==False:
 				target = input("Which minion do you want to damage? ('f' for face): ")
@@ -477,25 +479,28 @@ class Game:
 				self.passivePlayer.hand.append( cardDrawn)
 
 	def attackMinion(self,attacker,p2Pos):
-		pMinions = self.passivePlayer.getActiveMinions()
-		taunts = []
-		for minion in pMinions:
-			if minion.hasTaunt:
-				taunts.append(minion)
-		p2minion = self.passivePlayer.getActiveMinions()[int(p2Pos)]
-		if len(taunts)>0:
-			if not p2minion.hasTaunt:
-				print("*You need to target a minion with taunt*")
-				return False
-		p2Health = p2minion.getHealth() - attacker.getAttack()
-		self.passivePlayer.getActiveMinions()[int(p2Pos)].currentHealth=p2Health
-		p1Health = attacker.getHealth() - p2minion.getAttack()
-		attacker.currentHealth=p1Health
-		print(attacker.getName(),"attacked",p2minion.getName())
-		attacker.attacked()
-		self.updateContinousEffects()
-		self.removeDeadMinions()
-		self.updateContinousEffects()
+		if attacker.hasAttacked == False and attacker.frozenRounds<=0:
+			pMinions = self.passivePlayer.getActiveMinions()
+			taunts = []
+			for minion in pMinions:
+				if minion.hasTaunt:
+					taunts.append(minion)
+			p2minion = self.passivePlayer.getActiveMinions()[int(p2Pos)]
+			if len(taunts)>0:
+				if not p2minion.hasTaunt:
+					print("*You need to target a minion with taunt*")
+					return False
+			p2Health = p2minion.getHealth() - attacker.getAttack()
+			self.passivePlayer.getActiveMinions()[int(p2Pos)].currentHealth=p2Health
+			p1Health = attacker.getHealth() - p2minion.getAttack()
+			attacker.currentHealth=p1Health
+			print(attacker.getName(),"attacked",p2minion.getName())
+			attacker.attacked()
+			self.updateContinousEffects()
+			self.removeDeadMinions()
+			self.updateContinousEffects()
+		else:
+			print("Tried to attack with a illegal minion")
 
 	def didAnyoneWin(self):
 		aWon = False
@@ -517,7 +522,7 @@ class Game:
 				print("You need to attack a minion with taunt")
 				return False
 			self.passivePlayer.reduceHealth(attacker.getAttack())
-			print(attacker.name,"has attacked",self.passivePlayer.getName())
+			print(attacker.name,"has attacked",self.passivePlayer.getName(),"for",attacker.currentAttack,"damage")
 			attacker.attacked()
 		else:
 			if self.activePlayer.AI==False:
@@ -552,6 +557,8 @@ class Game:
 			for minion in listOfDeathrattles:
 				minion.dr(self,minion)
 			self.removeDeadMinions()
+		if (killedAny):
+			return True
 
 	def getAvailableMoves(self):
 		cards = []
@@ -579,8 +586,14 @@ class Game:
 		for card in self.passivePlayer.deck.cards:
 			if card.type=="Minion":
 				card.setOwner(self.passivePlayer)
+		coin = Spell("The Coin",0)
+		def coinEffect(game):
+			game.activePlayer.currentMana += 1
+		coin.setEffect(coinEffect)
+		self.passivePlayer.hand.append(copy.deepcopy(coin))
 		self.draw(3,"a")
 		self.draw(4,"p")
+
 		gameOver = False
 		while not gameOver:
 			roundDone = False
@@ -606,12 +619,14 @@ class Game:
 						try:
 							# print("bot prøver face")
 							self.attackFace(self.activePlayer.activeMinions[i])
-							time.sleep(0.3)
+							for k in range (len(self.passivePlayer.activeMinions)):
+								self.attackMinion(self.activePlayer.activeMinions[i],k)
+
 						except:
 							pass
 					time.sleep(1)
-					self.removeDeadMinions()
-					time.sleep(3)
+					if self.removeDeadMinions():
+						time.sleep(3)
 					aWon,pWon = self.didAnyoneWin()
 					if (aWon or pWon):
 						if aWon:

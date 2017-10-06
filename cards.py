@@ -67,6 +67,11 @@ class Minion(Card):
 		self.onSpellOwnRound = onSpellCastOwnRound
 		self.owner = None
 
+	def setCharge(self,value):
+		self.hasCharge=value
+		if value == True:
+			self.hasAttacked = False
+
 	def setContinousEffect(self,action):
 		self.continousEffect = action
 

@@ -48,7 +48,7 @@ def bokEffect(game):
 		else:
 			if (len(game.activePlayer.activeMinions))>0:
 				targeT=random.randint(0,len(game.activePlayer.activeMinions)-1)
-				print("AI BOK TARGET",targeT)
+				# print("AI BOK TARGET",targeT)
 				game.activePlayer.activeMinions[targeT].buff(4,4)
 bok.setEffect(bokEffect)
 bok.setTargetOwnMinions(True)
@@ -61,10 +61,32 @@ def selvskad(game,minion):
 	game.activePlayer.health = game.activePlayer.health - 5
 selv.setBattlecry(selvskad)
 
-
+kultFolger = Minion("Kult-følger",2,4,1)
+def kultFolgerBC(game,minion):
+	friendlyMinions = minion.owner.activeMinions
+	if len(friendlyMinions)>1: #needs to count from 1 because he is present himself
+		if minion.owner.AI==False:
+			target = input("Which minion will you sacrifice?: ")
+			minion.owner.activeMinions[int(target)].currentHealth=0
+			minion.setCharge(True)
+		else:
+			target = 0
+			minion.owner.activeMinions[int(target)].currentHealth=0
+			minion.setCharge(True)
+kultFolger.setBattlecry(kultFolgerBC)
 
 stromGjerde = Minion("Strømgjerde",7,2,9)
 stromGjerde.setTaunt(True)
+
+
+fulgeskremsel = Minion("Fulgeskremsel",3,1,5)
+def fulgreskremselEffect(game,minion):
+	if game.passivePlayer==minion.owner:
+		minion.currentAttack = minion.maxAttack + 2
+	else:
+		minion.currentAttack = minion.maxAttack
+fulgeskremsel.setTaunt(True)
+fulgeskremsel.setContinousEffect(fulgreskremselEffect)
 
 hermeGaas = Minion("Hermegås",4,0,4)
 def hermeGaasEffect(game,minion):
@@ -176,11 +198,17 @@ def frostBoltEffect(game):
 			target = targetMinions[random.randint(0,len(targetMinions)-1)]
 			target.damage(3)
 			target.freeze(1)
-			print("Frostbolt hit target",target.name)
+			# print("Frostbolt hit target",target.name)
 		else:
-			print("Frostbolt hit face")
+			# print("Frostbolt hit face")
 			game.passivePlayer.reduceHealth(3)
 frostbolt.setEffect(frostBoltEffect)
+
+
+coin = Spell("The Coin",0)
+def coinEffect(game):
+	game.activePlayer.currentMana += 1
+coin.setEffect(coinEffect)
 
 
 
@@ -230,14 +258,6 @@ drBoom.setBattlecry(boomFunc)
 
 deck1 = Deck("deck 1")
 deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
 deck1.addCard(copy.deepcopy(fireball))
 deck1.addCard(copy.deepcopy(concecration))
 deck1.addCard(copy.deepcopy(flamestrike))
@@ -258,6 +278,16 @@ deck1.addCard(copy.deepcopy(bok))
 deck1.addCard(juksePave)
 deck1.addCard(drBoom)
 deck1.addCard(hermeGaas)
+deck1.addCard(kultFolger)
+deck1.addCard(fulgeskremsel)
+deck1.addCard(fulgeskremsel)
+deck1.addCard(fulgeskremsel)
+deck1.addCard(fulgeskremsel)
+deck1.addCard(fulgeskremsel)
+deck1.addCard(fulgeskremsel)
+deck1.addCard(fulgeskremsel)
+deck1.addCard(fulgeskremsel)
+deck1.addCard(fulgeskremsel)
 
 
 
