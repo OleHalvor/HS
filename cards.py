@@ -7,7 +7,7 @@ class Card:
 		self.description = ''
 
 
-	def addDescription(self,desc):
+	def setDescription(self,desc):
 		if self.type=="Minion":
 			self.description = "{}/{} - {}".format(self.maxAttack,self.maxHealth,desc)
 		else:
@@ -43,7 +43,7 @@ class Minion(Card):
 		self.hasCharge = False
 		self.hasTaunt = False
 
-		self.addDescription("")
+		self.setDescription("")
 
 
 		def contEffectF(game,minion):
@@ -96,8 +96,8 @@ class Minion(Card):
 	def setBattlecry(self,action):
 		self.bc = action
 
-	def giveTaunt(self):
-		self.hasTaunt = True
+	def setTaunt(self,value):
+		self.hasTaunt = value
 
 	def attacked(self):
 		self.hasAttacked = True
@@ -107,6 +107,7 @@ class Minion(Card):
 
 	def freeze(self,rounds):
 		self.frozenRounds += rounds+1
+		print(self.name,"has been frozen")
 		
 
 	def freezeTick(self):
@@ -140,6 +141,8 @@ class Spell(Card):
 		def spellEffect(game):
 			pass
 		self.effect = spellEffect
+		self.targetEnemyMinions = False
+		self.targetOwnMinions = False
 
 	def setEffect(self,effect):
 		self.effect = effect
@@ -149,6 +152,9 @@ class Spell(Card):
 
 	def addDamageEnemyAOE(self,amount,face):
 		self.damageEnemyAOE=[amount,face]
+
+	def setTargetOwnMinions(self,value):
+		self.targetOwnMinions = value
 
 
 

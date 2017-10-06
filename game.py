@@ -2,6 +2,7 @@ import random
 import copy
 import textwrap
 import socket
+import time
 class Game:
 
 	def __init__(self, player1, player2):
@@ -75,16 +76,85 @@ class Game:
 			print("   {}  -  {}   - {}:  {}".format(c,card.cost,card.name,card.description))
 			c+=1
 
-	def printDetails(self):
-		print("Enemy minions:")
-		for minion in self.passivePlayer.activeMinions:
-			print("{}-{}-{}".format(minion.name,minion.currentAttack,minion.currentHealth,minion.description))
-		print("Your minions:")
+	def printAttackReadyMinions(self):
+		print("\nMinions who can attack:\n")
+		longestName = 0
 		for minion in self.activePlayer.activeMinions:
-			print("{}-{}-{}".format(minion.name,minion.currentAttack,minion.currentHealth,minion.description))
-		print("Your hand:")
+			if len(minion.name)>longestName:
+				longestName = len(minion.name)
+		if longestName > 25:
+			longestName = 25
+
+		count = 0
+		print ("Position - Name - Stats - Effects")
+		for minion in self.activePlayer.activeMinions:
+			if not minion.hasAttacked and minion.frozenRounds<=0:
+				tempName = "{0:<{1}}".format(minion.name,longestName)
+				if len(tempName)>longestName-1:
+					tempName=tempName[0:longestName-1]
+				tempType = "{0:<6}".format(minion.type)
+				print("  {4} - {1} - {2}".format(minion.cost,tempName,minion.description,tempType,count))
+			count += 1	
+		print("")
+
+	def printPlayableCards(self,player):
+		print("\nCards you can play:\n")
+		longestName = 0
 		for card in self.activePlayer.hand:
-			print("{}-{}-{}".format(card.cost,card.name,card.description))
+			if len(card.name)>longestName:
+				longestName = len(card.name)
+		if longestName > 25:
+			longestName = 25
+
+		count = 0
+		print ("Position - Cost - Name - Type - Stats - Effects")
+		for card in self.activePlayer.hand:
+			if card.cost <= self.activePlayer.currentMana:
+				tempName = "{0:<{1}}".format(card.name,longestName)
+				if len(tempName)>longestName-1:
+					tempName=tempName[0:longestName]
+				tempType = "{0:<6}".format(card.type)
+				if card.type=="Spell":
+					tempType += " - N/A"
+					print("  {4} - {0} - {1} - {3} - {2}".format(card.cost,tempName,card.description,tempType,count))
+				else:
+					print("  {4} - {0} - {1} - {3} - {2}".format(card.cost,tempName,card.description,tempType,count))
+			count += 1	
+		print("")
+
+	def printHandDetails(self,player):
+		print("\nYour hand:")
+		longestName = 0
+		for card in self.activePlayer.hand:
+			if len(card.name)>longestName:
+				longestName = len(card.name)
+		if longestName > 25:
+			longestName = 25
+
+		count = 0
+		print ("Position - Cost - Name - Type - Stats - Effects")
+		for card in self.activePlayer.hand:
+			tempName = "{0:<{1}}".format(card.name,longestName)
+			if len(tempName)>longestName-1:
+				tempName=tempName[0:longestName]
+			tempType = "{0:<6}".format(card.type)
+			if card.type=="Spell":
+				tempType += " - N/A"
+				print("  {4} - {0} - {1} - {3} - {2}".format(card.cost,tempName,card.description,tempType,count))
+			else:
+				print("  {4} - {0} - {1} - {3} - {2}".format(card.cost,tempName,card.description,tempType,count))
+			count += 1
+
+	def printDetails(self):
+		print("\n === GAME STATE DETAILS === \n")
+		print("\nEnemy minions:")
+		for minion in self.passivePlayer.activeMinions:
+			print("    {} - {} - {}".format(minion.name,minion.currentAttack,minion.currentHealth,minion.description))
+		print("\nYour minions:")
+		for minion in self.activePlayer.activeMinions:
+			print("    {} - {} - {}".format(minion.name,minion.currentAttack,minion.currentHealth,minion.description))
+		self.printHandDetails(self.activePlayer)
+		print("")
 
 	def printPassiveHand(self):
 		line0=''
@@ -334,6 +404,10 @@ class Game:
 			return False
 
 	def playSpell(self,cardPosition):
+		spell = self.activePlayer.hand[-1]
+		if spell.targetOwnMinions and len(self.activePlayer.activeMinions)==0:
+			print("This spell needs a friendly target")
+			return False
 		spell = self.activePlayer.hand.pop(cardPosition)
 		print (self.activePlayer.name," played spell: ", spell)
 		print (spell.getName(),"Has the effect:",spell.getDescription())
@@ -501,8 +575,8 @@ class Game:
 		for card in self.passivePlayer.deck.cards:
 			if card.type=="Minion":
 				card.setOwner(self.passivePlayer)
-		self.draw(2,"a")
-		self.draw(2,"p")
+		self.draw(3,"a")
+		self.draw(4,"p")
 		gameOver = False
 		while not gameOver:
 			roundDone = False
@@ -516,51 +590,24 @@ class Game:
 					minion.readyToAttack()
 					minion.freezeTick()
 				if self.activePlayer.AI:
-				# if 1==2:
-					# print("{}'s turn".format(self.activePlayer.getName()))
 					if self.activePlayer.getDeck().getRemaining()>0:
 						self.draw(1,"a")
-					# self.printPassiveHand()
-					# self.printGameState()
-					# self.printHand()
-
-					#BOT STUFF
-					# moves = self.getAvailableMoves()
-					# scores = []
-					# for move in moves:
-					# 	tempActivePlayer = copy.deepcopy(self.activePlayer)
-					# 	tempPassivePlayer = copy.deepcopy(self.passivePlayer)
-					# 	print("Tring card:",move)
-					# 	self.playCard(move)
-
-
-					# 	if (tempPassivePlayer.health<=0):
-					# 		scores.append(999999999)
-					# 	formula = ((len(tempActivePlayer.activeMinions) / 7)*5+((tempPassivePlayer.health/20)*-10))
-					# 	scores.append(formula)
-					# maxScore = -9999
-					# BestMove = -1
-					# count = 0
-					# for score in scores:
-					# 	print("Score: ",score)
-					# 	if score > maxScore:
-					# 		maxScore = score
-					# 		BestMove = count
-					# 	count += 1
-					# print("Best move is:",BestMove)
 					for i in range (len(self.activePlayer.hand)):
 						try:
 							self.playCard(i)
+							time.sleep(0.3)
 						except:
 							pass
 					for i in range (len(self.activePlayer.activeMinions)):
 						try:
 							# print("bot prøver face")
 							self.attackFace(self.activePlayer.activeMinions[i])
+							time.sleep(0.3)
 						except:
-							print("Fikk error")
 							pass
+					time.sleep(1)
 					self.removeDeadMinions()
+					time.sleep(3)
 					aWon,pWon = self.didAnyoneWin()
 					if (aWon or pWon):
 						if aWon:
@@ -570,7 +617,7 @@ class Game:
 							print("Player:",self.passivePlayer.name,"has won the game!")
 							gameOver = True
 						break
-					print ("======== ENDING AI's TURN ========")
+					print ("======== YOUR TURN ========")
 					self.nextTurn()
 					
 
@@ -599,13 +646,15 @@ class Game:
 						else:
 							action = self.getInput("Write 'e' to end turn: ")
 						if action == "p":
-							self.printCardDescription(self.activePlayer.hand)
+							print("\nYou have ** {} ** mana".format(self.activePlayer.currentMana))
+							self.printPlayableCards(self.activePlayer)
 							canPlayCard = False
 							for card in self.activePlayer.hand:
 								if card.cost <= self.activePlayer.currentMana:
 									canPlayCard = True
 							if canPlayCard:
 								cardToPlay = input("Which card do you want to play? ('a' to abort) ")
+								
 								if cardToPlay != "a" and not cardToPlay=="":
 									if int(cardToPlay) < (len(self.activePlayer.hand)):
 										if not self.playCard(cardToPlay):
@@ -623,9 +672,10 @@ class Game:
 						if action =="v":
 							pass
 						if action =="e":
-							print ("======== ENDING YOUR TURN ========")
+							print ("======== AI's TURN ========")
 							break
 						if action =="a":
+							self.printAttackReadyMinions()
 							attacker = int(input("What index do you want to attack with?: "))
 							if attacker >= len(self.activePlayer.activeMinions):
 								print("\nThat index was too high")

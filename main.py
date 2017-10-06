@@ -21,7 +21,7 @@ munk = Minion("Munken",1,1,1)
 def skad5(game):
 	game.passivePlayer.damageMinionOrHero(5)
 munk.setBattlecry(skad5)
-munk.addDescription("Deal 5 damage")
+munk.setDescription("Deal 5 damage")
 #This creates a minion witch cost 1, has 1 attack and 1 health, and deals 5 damage when played. What you define in the function you place in setBattlecry() will be run when the minion is played. Always take game as argument. this contains all the information about the game state.
 
 #Spells are created similarly to minion, but without attack and health.
@@ -31,26 +31,28 @@ superHeal = Spell("SuperHeal",1)
 def heal10(game):
 	game.activePlayer.heal(10)
 superHeal.setEffect(heal10)
-superHeal.addDescription("Heals player 10HP") #Descriptions are used to inform players about the effects of a card.
+superHeal.setDescription("Heals player 10HP") #Descriptions are used to inform players about the effects of a card.
 
 bok = Spell("Blessing of kings",4)
-bok.addDescription("+4/+4 buff")
+bok.setDescription("+4/+4 buff")
 def bokEffect(game):
 	if len(game.activePlayer.activeMinions)==0:
 		print("You have no minions to buff!")
-	elif game.activePlayer.AI==False:
-		target = int(input("Which minion do you want to buff?"))
-		if target < len(game.activePlayer.activeMinions):
-			game.activePlayer.activeMinions[int(target)].buff(4,4)
-		else:
-			print("Invalid target")
 	else:
-		if (len(game.activePlayer.activeMinions))>0:
-			game.activePlayer.activeMinions[randint(0,len(game.activePlayer.activeMinions))]
+		if game.activePlayer.AI==False:
+			target = int(input("Which minion do you want to buff?"))
+			if target < len(game.activePlayer.activeMinions):
+				game.activePlayer.activeMinions[int(target)].buff(4,4)
+			else:
+				print("Invalid target")
+		else:
+			if (len(game.activePlayer.activeMinions))>0:
+				game.activePlayer.activeMinions[randint(0,len(game.activePlayer.activeMinions))]
 bok.setEffect(bokEffect)
+bok.setTargetOwnMinions(True)
 
 footman = Minion("Goldshire Footman",1,1,2)
-footman.giveTaunt()
+footman.setTaunt(True)
 
 selv = Minion("Selvskader",1,1,1)
 def selvskad(game):
@@ -60,7 +62,7 @@ selv.setBattlecry(selvskad)
 
 
 stromGjerde = Minion("Strømgjerde",7,2,9)
-stromGjerde.giveTaunt()
+stromGjerde.setTaunt(True)
 
 hermeGaas = Minion("Hermegås",4,0,4)
 def hermeGaasEffect(game,minion):
@@ -76,6 +78,7 @@ def hermeGaasEffect(game,minion):
 				highestAttack = minionTemp.currentAttack
 		minion.currentAttack = highestAttack
 hermeGaas.setContinousEffect(hermeGaasEffect)
+hermeGaas.setDescription("Attack always = attack of strongest minion on board")
 
 
 
@@ -84,7 +87,7 @@ flowerGirl =Minion("FlowerGirl",1,1,3)
 yeti = Minion("Yeti",4,4,5)
 
 
-wildPyro = Minion("Wild Pyromancer",1,3,2)
+wildPyro = Minion("Wild Pyromancer",2,3,2)
 def wildPyroEffect(game):
 	for minion in game.activePlayer.activeMinions:
 		minion.damage(1)
@@ -92,6 +95,7 @@ def wildPyroEffect(game):
 		minion.damage(1)
 	print("Wild Pyromancer did 1 AOE damage to the board")
 wildPyro.setOnSpellOwnRound(wildPyroEffect)
+wildPyro.setDescription("1 AOE damage when you cast a spell")
 
 
 juksePave = Minion("Juksepave",2,3,3)
@@ -103,6 +107,7 @@ def juksePaveFunc(game):
 	# 	pass
 	game.titt(game.activePlayer,4)
 juksePave.setBattlecry(juksePaveFunc)
+juksePave.setDescription("Look at the next 4 cards in the deck")
 
 
 
@@ -128,35 +133,35 @@ def frysTreFiender(game):
 		game.passivePlayer.activeMinions[toBeFrozen2].freeze(1)
 		game.passivePlayer.activeMinions[toBeFrozen3].freeze(1)
 dataVirus.setBattlecry(frysTreFiender)
-dataVirus.addDescription("Freezes three random enemy minions")
+dataVirus.setDescription("Freezes three random enemy minions")
 
 
 #The following spells use the old way of defining spells, will be removed
 fireball = Spell("Fireball",4)
 fireball.addDamageOne(6,False)
-fireball.addDescription("Deal 6 damage")
+fireball.setDescription("Deal 6 damage")
 
 flamestrike = Spell("Flamestrike",7)
 flamestrike.addDamageEnemyAOE(4,False)
-flamestrike.addDescription("Deal 4 damage to all enemy minions")
+flamestrike.setDescription("Deal 4 damage to all enemy minions")
 
 concecration = Spell("Concecration",4)
 concecration.addDamageEnemyAOE(2,True)
-concecration.addDescription("Deal 2 damage to all enemy characters")
+concecration.setDescription("Deal 2 damage to all enemy characters")
 
 swipe = Spell("Swipe",4)
 swipe.addDamageOne(3,False)
 swipe.addDamageEnemyAOE(1,False)
-swipe.addDescription("Deal 3 damage to one target, deal 1 damage to all enemies")
+swipe.setDescription("Deal 3 damage to one target, deal 1 damage to all enemies")
 
 darkBomb = Spell("DarkBomb",2)
 darkBomb.addDamageOne(3,False)
-darkBomb.addDescription("Deal 3 damage to one target")
+darkBomb.setDescription("Deal 3 damage to one target")
 
 
 
 frostbolt = Spell("FrostBolt",2)
-frostbolt.addDescription("Deal 3 damage and freeze target")
+frostbolt.setDescription("Deal 3 damage and freeze target")
 def frostBoltEffect(game):
 	if game.activePlayer.AI==False:
 		target = input("Choose target ('f' for face): ")
