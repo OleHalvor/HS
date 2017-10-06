@@ -31,9 +31,21 @@ bjarne = Minion("Bjarne",2,1,2)
 bjarne.setDescription("Worst minion in the game")
 
 #If you wish to add a battlecry this is the way:
-munk = Minion("Munken",1,1,1)
+munk = Minion("Munken",5,2,3)
 def skad5(game,minion):
-	game.passivePlayer.damageMinionOrHero(5)
+	if game.activePlayer.AI==False:
+		target = input("Choose target ('f' for face): ")
+		if target =='f':
+			game.passivePlayer.reduceHealth(5)
+		else:
+			game.passivePlayer.activeMinions[int(target)].damage(5)
+	else:
+		targetMinions = game.passivePlayer.activeMinions
+		if len(targetMinions)>0:
+			target = targetMinions[random.randint(0,len(targetMinions)-1)]
+			target.damage(5)
+		else:
+			game.passivePlayer.reduceHealth(5)
 munk.setBattlecry(skad5)
 munk.setDescription("Deal 5 damage")
 #This creates a minion witch cost 1, has 1 attack and 1 health, and deals 5 damage when played. What you define in the function you place in setBattlecry() will be run when the minion is played. Always take game as argument. this contains all the information about the game state.
@@ -177,7 +189,7 @@ concecration.setDescription("Deal 2 damage to all enemy characters")
 swipe = Spell("Swipe",4)
 swipe.addDamageOne(3,False)
 swipe.addDamageEnemyAOE(1,False)
-swipe.setDescription("Deal 3 damage to one target, deal 1 damage to all enemies")
+swipe.setDescription("Deal 4 damage to one target, deal 1 damage to other enemies")
 
 darkBomb = Spell("DarkBomb",2)
 darkBomb.addDamageOne(3,False)
@@ -292,14 +304,15 @@ snaasaMannen.setDescription("Draw 1 card, Look at next 4 cards")
 glemmeRoyk = Spell("Glemmerøyk",1)
 def glemmeRoykEffect(game):
 	game.passivePlayer.deck.shuffle()
-	if game.activePlayer.AI == False:
-		target = input("Choose minion to be frozen")
-		game.passivePlayer.activeMinions[int(target)].freeze(1)
-	else:
-		targetMinions = game.passivePlayer.activeMinions
-		if len(targetMinions)>0:
-			target = targetMinions[random.randint(0,len(targetMinions)-1)]
-			target.freeze(1)
+	if len(game.passivePlayer.activeMinions)>0:
+		if game.activePlayer.AI == False:
+			target = input("Choose minion to be frozen: ")
+			game.passivePlayer.activeMinions[int(target)].freeze(1)
+		else:
+			targetMinions = game.passivePlayer.activeMinions
+			if len(targetMinions)>0:
+				target = targetMinions[random.randint(0,len(targetMinions)-1)]
+				target.freeze(1)
 glemmeRoyk.setEffect(glemmeRoykEffect)
 glemmeRoyk.setDescription("Shuffle oponents deck, freeze one enemy minion")
 
@@ -327,7 +340,10 @@ deck1 = Deck("Deck 1")
 deck1.addCard(frostbolt)
 deck1.addCard(frostbolt)
 deck1.addCard(copy.deepcopy(fireball))
+deck1.addCard(copy.deepcopy(fireball))
 deck1.addCard(copy.deepcopy(concecration))
+deck1.addCard(copy.deepcopy(concecration))
+deck1.addCard(copy.deepcopy(flamestrike))
 deck1.addCard(copy.deepcopy(flamestrike))
 deck1.addCard(copy.deepcopy(dataVirus))
 deck1.addCard(copy.deepcopy(footman))
@@ -357,7 +373,10 @@ deck1.addCard(ostePop)
 deck1.addCard(snaasaMannen)
 deck1.addCard(glemmeRoyk)
 deck1.addCard(combatMedic)
+deck1.addCard(combatMedic)
 deck1.addCard(angrendeAlv)
+deck1.addCard(manaWyrm)
+deck1.addCard(manaWyrm)
 deck1.addCard(manaWyrm)
 
 
