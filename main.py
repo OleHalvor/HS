@@ -322,7 +322,7 @@ blizzard.setDescription("Dmg 2 enemy minions and freeze them")
 
 circleOfHealing = Spell("Circle Of Healing",1)
 def circleOfHealingEffect(game):
-	healAllMinions(4)
+	healAllMinions(game,4)
 circleOfHealing.setEffect(circleOfHealingEffect)
 circleOfHealing.setDescription("Heal all minions 4")
 

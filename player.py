@@ -4,8 +4,8 @@ class Player:
 
 	def __init__(self,name,deck):
 		self.name = name
-		self.maxHealth = 30
-		self.health = 30
+		self.maxHealth = 15
+		self.health = 15
 		self.deck = deck
 		self.hand = []
 		self.activeMinions = []
