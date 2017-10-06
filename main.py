@@ -12,6 +12,10 @@ def damageAllMinions(game,amount):
 	for minion in game.passivePlayer.activeMinions:
 		minion.damage(amount)
 
+def damageAllEnemyMinions(game,amount):
+	for minion in game.passivePlayer.activeMinions:
+		minion.damage(amount)
+
 def healAllMinions(game,amount):
 	for minion in game.activePlayer.activeMinions:
 		minion.heal(amount)
@@ -301,6 +305,27 @@ def snaasaMannenBC(game,minion):
 snaasaMannen.setBattlecry(snaasaMannenBC)
 snaasaMannen.setDescription("Draw 1 card, Look at next 4 cards")
 
+letEtterSkatt = Spell("Let etter skatt",4)
+def letEtterSkattEffect(game):
+	game.draw(3,"a")
+letEtterSkatt.setEffect(letEtterSkattEffect)
+letEtterSkatt.setDescription("Draw 4 cards")
+
+blizzard = Spell("Blizzard",6)
+def blizzardEffect(game):
+	damageAllEnemyMinions(game,2)
+	for minion in game.passivePlayer.activeMinions:
+		minion.freeze(1)
+blizzard.setEffect(blizzardEffect)
+blizzard.setDescription("Dmg 2 enemy minions and freeze them")
+
+
+circleOfHealing = Spell("Circle Of Healing",1)
+def circleOfHealingEffect(game):
+	healAllMinions(4)
+circleOfHealing.setEffect(circleOfHealingEffect)
+circleOfHealing.setDescription("Heal all minions 4")
+
 glemmeRoyk = Spell("Glemmerøyk",1)
 def glemmeRoykEffect(game):
 	game.passivePlayer.deck.shuffle()
@@ -334,6 +359,8 @@ def manaWyrmEffect(game,minion):
 	minion.maxAttack += 1
 	minion.currentAttack += 1
 manaWyrm.setOnSpellOwnRound(manaWyrmEffect)
+
+
 
 #copy.deepcopy no longer needed
 deck1 = Deck("Deck 1")
@@ -378,8 +405,11 @@ deck1.addCard(angrendeAlv)
 deck1.addCard(manaWyrm)
 deck1.addCard(manaWyrm)
 deck1.addCard(manaWyrm)
-
-
+deck1.addCard(blizzard)
+deck1.addCard(blizzard)
+deck1.addCard(circleOfHealing)
+deck1.addCard(letEtterSkatt)
+deck1.addCard(letEtterSkatt)
 
 
 

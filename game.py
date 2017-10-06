@@ -94,7 +94,7 @@ class Game:
 			if not minion.hasAttacked and minion.frozenRounds<=0:
 				tempName = "{0:<{1}}".format(minion.name,longestName)
 				if len(tempName)>longestName-1:
-					tempName=tempName[0:longestName-1]
+					tempName=tempName[0:longestName]
 				tempType = "{0:<6}".format(minion.type)
 				print("  {4} - {1} - {2}".format(minion.cost,tempName,minion.description,tempType,count))
 			count += 1	
@@ -279,7 +279,7 @@ class Game:
 			if not hasAttacked and frozRounds<=0 :
 				line1+="|{}        | ".format(cardsInHand[i].cost)
 			elif frozRounds>0:
-				line1+="|{}       F| ".format(cardsInHand[i].cost)
+				line1+="|{}  FROZEN| ".format(cardsInHand[i].cost)
 			else:
 				line1+="|{}       Z| ".format(cardsInHand[i].cost)
 			tempName = cardsInHand[i].name
@@ -354,7 +354,7 @@ class Game:
 			if not hasAttacked and frozRounds<=0 :
 				line1+="|{}        | ".format(cardsInHand[i].cost)
 			elif frozRounds>0:
-				line1+="|{}       F| ".format(cardsInHand[i].cost)
+				line1+="|{}  FROZEN| ".format(cardsInHand[i].cost)
 			else:
 				line1+="|{}       Z| ".format(cardsInHand[i].cost)
 			tempName = cardsInHand[i].name
@@ -748,7 +748,7 @@ class Game:
 							# time.sleep(0.2)
 						except:
 							pass
-					time.sleep(4)
+					# time.sleep(1)
 					if self.activePlayer == self.player1:
 						self.printPassiveHand()
 						self.printGameState()
@@ -757,7 +757,7 @@ class Game:
 						face = random.randint(0,2)
 						if face>0:
 							try:
-								print("bot går face")
+								# print("bot går face")
 								self.attackFace(self.activePlayer.activeMinions[i])
 								for k in range (len(self.passivePlayer.activeMinions)):
 									self.attackMinion(self.activePlayer.activeMinions[i],k)
@@ -765,14 +765,14 @@ class Game:
 								pass
 						else:
 							try:
-								print("bot går minions")
+								# print("bot går minions")
 								for k in range (len(self.passivePlayer.activeMinions)):
 									self.attackMinion(self.activePlayer.activeMinions[i],k)
 								self.attackFace(self.activePlayer.activeMinions[i])
 								
 							except:
 								pass
-					time.sleep(4)
+					# time.sleep(1)
 					if self.activePlayer == self.player1:
 						self.printPassiveHand()
 						self.printGameState()
