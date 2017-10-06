@@ -126,9 +126,9 @@ def frysTreFiender(game,minion):
 		game.passivePlayer.activeMinions[1].freeze(1)
 		game.passivePlayer.activeMinions[2].freeze(1)
 	else:
-		toBeFrozen = numberOfEnemies.pop(randint(numberOfEnemies-1))
-		toBeFrozen2 = numberOfEnemies.pop(randint(numberOfEnemies-2))
-		toBeFrozen3 = numberOfEnemies.pop(randint(numberOfEnemies-3))
+		toBeFrozen = numberOfEnemies.pop(random.randint(numberOfEnemies-1))
+		toBeFrozen2 = numberOfEnemies.pop(random.randint(numberOfEnemies-2))
+		toBeFrozen3 = numberOfEnemies.pop(random.randint(numberOfEnemies-3))
 		game.passivePlayer.activeMinions[toBeFrozen].freeze(1)
 		game.passivePlayer.activeMinions[toBeFrozen2].freeze(1)
 		game.passivePlayer.activeMinions[toBeFrozen3].freeze(1)
@@ -173,7 +173,7 @@ def frostBoltEffect(game):
 	else:
 		targetMinions = game.passivePlayer.activeMinions
 		if len(targetMinions)>0:
-			target = targetMinions[randint(0,len(targetMinions))]
+			target = targetMinions[random.randint(0,len(targetMinions)-1)]
 			target.damage(3)
 			target.freeze(1)
 			print("Frostbolt hit target",target.name)
@@ -229,6 +229,14 @@ drBoom.setBattlecry(boomFunc)
 #copy.deepcopy no longer needed
 
 deck1 = Deck("deck 1")
+deck1.addCard(frostbolt)
+deck1.addCard(frostbolt)
+deck1.addCard(frostbolt)
+deck1.addCard(frostbolt)
+deck1.addCard(frostbolt)
+deck1.addCard(frostbolt)
+deck1.addCard(frostbolt)
+deck1.addCard(frostbolt)
 deck1.addCard(frostbolt)
 deck1.addCard(copy.deepcopy(fireball))
 deck1.addCard(copy.deepcopy(concecration))
