@@ -359,15 +359,6 @@ deck1.addCard(glemmeRoyk)
 deck1.addCard(combatMedic)
 deck1.addCard(angrendeAlv)
 deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
-deck1.addCard(manaWyrm)
 
 
 
@@ -380,7 +371,6 @@ deck2.name="Deck 2"
 
 player1 = Player("Player one",deck1)
 player2 = Player("Player two",deck2)
-player2.AI=True
 
 game = Game(player1,player2)
 game.start()

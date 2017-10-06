@@ -19,7 +19,7 @@ class Game:
 		self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 		self.playersConnected = 0
 		self.localGame = True
-		self.againstAI = False
+		self.againstAI = True
 
 
 	def customPrint(text):
@@ -644,7 +644,8 @@ class Game:
 		self.passivePlayer.hand.append(copy.deepcopy(coin))
 		self.draw(3,"a")
 		self.draw(4,"p")
-
+		if self.againstAI:
+			self.passivePlayer.AI=True
 		gameOver = False
 		while not gameOver:
 			roundDone = False
