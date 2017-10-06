@@ -63,7 +63,7 @@ class Minion(Card):
 		def onSpellCastF(game):
 			pass
 		self.onSpell = onSpellCastF
-		def onSpellCastOwnRound(game):
+		def onSpellCastOwnRound(game,minion):
 			pass
 		self.onSpellOwnRound = onSpellCastOwnRound
 		self.owner = None
@@ -96,6 +96,7 @@ class Minion(Card):
 		self.currentAttack += attack
 
 	def heal(self,amount):
+		print(self.name,"was healed for",amount)
 		self.currentHealth = self.currentHealth + amount
 		if self.currentHealth > self.maxHealth:
 			self.currentHealth = self.maxHealth

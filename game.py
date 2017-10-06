@@ -336,6 +336,48 @@ class Game:
 		print("-----------------",self.activePlayer.getHealth(),"-----------------")
 		# print("----ACTIVE----")
 
+	def printPossibleTargetsOfMinion(self,attacker):
+		enemyMinions = self.passivePlayer.activeMinions
+		taunts = []
+		targets = []
+		face = False
+		c = 0
+		for minion in enemyMinions:
+			if minion.hasTaunt:
+				taunts.append(c)
+			c += 1
+		if attacker.onlyAbleToAttackMinions==False and len(taunts)==0:
+			targets = range(0,len(enemyMinions))
+			face = True
+		elif len(taunts)>0:
+			targets = taunts
+		elif attacker.onlyAbleToAttackMinions and len(taunts)==0:
+			targets = range(0,len(enemyMinions))
+		elif len(targets)==0:
+			targets = []
+			face = True
+
+		print("\nLegal Targets:\n")
+		longestName = 0
+		for target in targets:
+			if len(enemyMinions[target].name)>longestName:
+				longestName = len(enemyMinions[target].name)
+		if longestName > 25:
+			longestName = 25
+
+		count = 0
+		print ("Position - Name - Stats - Effects")
+		for target in targets:
+			tempName = "{0:<{1}}".format(enemyMinions[target].name,longestName)
+			if len(tempName)>longestName-1:
+				tempName=tempName[0:longestName-1]
+			tempType = "{0:<6}".format(enemyMinions[target].type)
+			print("  {4} - {1} - {2}".format(enemyMinions[target].cost,tempName,enemyMinions[target].description,tempType,targets[count]))
+			count += 1
+		if face:
+			print("  f - FACE")
+		print("")
+
 	def nextTurn(self):
 		if self.activePlayer == self.player1:
 			self.activePlayer = self.player2
@@ -362,7 +404,6 @@ class Game:
 	def activateRoundStartMinions(self):
 		for minion in self.activePlayer.activeMinions:
 			minion.onRoundStart(self)
-
 
 	def mulligan(self):
 		pass
@@ -411,7 +452,7 @@ class Game:
 			print("This spell needs a friendly target")
 			return False
 		spell = self.activePlayer.hand.pop(cardPosition)
-		print (self.activePlayer.name," played spell: ", spell)
+		print (self.activePlayer.name,"played spell:  ", spell)
 		# print (spell.getName(),"Has the effect:",spell.getDescription())
 		if spell.damageOne[0]>0:
 			if not spell.damageOne[1] and self.activePlayer.AI==False:
@@ -461,7 +502,7 @@ class Game:
 	def ActivateOnSpellCastMinions(self):
 		for minion in self.activePlayer.activeMinions:
 			minion.onSpell(self)
-			minion.onSpellOwnRound(self)
+			minion.onSpellOwnRound(self,minion)
 			# print("spell cast effects activated")
 		for minion in self.passivePlayer.activeMinions:
 			minion.onSpell(self)
@@ -488,7 +529,8 @@ class Game:
 			p2minion = self.passivePlayer.getActiveMinions()[int(p2Pos)]
 			if len(taunts)>0:
 				if not p2minion.hasTaunt:
-					print("*You need to target a minion with taunt*")
+					if self.activePlayer.AI==False:
+						print("*You need to target a minion with taunt*")
 					return False
 			p2Health = p2minion.getHealth() - attacker.getAttack()
 			self.passivePlayer.getActiveMinions()[int(p2Pos)].currentHealth=p2Health
@@ -522,7 +564,8 @@ class Game:
 						if minion.hasTaunt:
 							taunts.append(minion)
 					if len(taunts)>0:
-						print("You need to attack a minion with taunt")
+						if self.activePlayer.AI==False:
+							print("You need to attack a minion with taunt")
 						return False
 					self.passivePlayer.reduceHealth(attacker.getAttack())
 					print(attacker.name,"has attacked",self.passivePlayer.getName(),"for",attacker.currentAttack,"damage")
@@ -535,7 +578,6 @@ class Game:
 				print("that minion has to wait a round to attack")
 		self.updateContinousEffects()
 		
-
 	def removeDeadMinions(self):
 		listOfDeathrattles = []
 		killedAny=False
@@ -566,6 +608,8 @@ class Game:
 			self.removeDeadMinions()
 		if (killedAny):
 			return True
+		else:
+			return False
 
 	def getAvailableMoves(self):
 		cards = []
@@ -619,7 +663,7 @@ class Game:
 					for i in range (len(self.activePlayer.hand)):
 						try:
 							self.playCard(i)
-							time.sleep(0.3)
+							time.sleep(0.2)
 						except:
 							pass
 					for i in range (len(self.activePlayer.activeMinions)):
@@ -631,7 +675,7 @@ class Game:
 
 						except:
 							pass
-					time.sleep(1)
+					time.sleep(0.5)
 					if self.removeDeadMinions():
 						time.sleep(3)
 					aWon,pWon = self.didAnyoneWin()
@@ -711,15 +755,18 @@ class Game:
 								for minion in self.passivePlayer.activeMinions:
 									if minion.hasTaunt:
 										taunts.append(minion)
+								aMin = self.activePlayer.getActiveMinions()[attacker]
+								self.printPossibleTargetsOfMinion(aMin)
 								target = input("Which minion do you want to attack? ('f' for face): ")
 								print("")
-								aMin = self.activePlayer.getActiveMinions()[attacker]
+								
 								if len(taunts)>0:
 									if(target=="f"):
-										print("You need to target a minion with taunt")
+										pass
+										# print("You need to target a minion with taunt")
 									else:
 										if not self.passivePlayer.activeMinions[int(target)].hasTaunt:
-											print("You need to target a minion with taunt")
+											# print("You need to target a minion with taunt")
 											print(aMin.name,aMin.hasTaunt,attacker)
 										else:
 											if aMin.hasAttacked:
