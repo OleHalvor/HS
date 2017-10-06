@@ -898,33 +898,33 @@ class Game:
 							self.printHand()
 							print(self.evaluateState())
 						c+=1
-					# for i in range (len(self.activePlayer.hand)):
-					# 	try:
-					# 		self.playCard(i)
-					# 		# time.sleep(0.2)
-					# 	except:
-					# 		pass
-					# # time.sleep(1)
-					# for k in range(0,10):
-					# 	for i in range (len(self.activePlayer.activeMinions)):
-					# 		face = random.randint(0,10)
-					# 		if face>2:
-					# 			try:
-					# 				# print("bot går face")
-					# 				self.attackFace(self.activePlayer.activeMinions[i])
-					# 				for k in range (len(self.passivePlayer.activeMinions)):
-					# 					self.attackMinion(self.activePlayer.activeMinions[i],k)
-					# 			except:
-					# 				pass
-					# 		else:
-					# 			try:
-					# 				# print("bot går minions")
-					# 				for k in range (len(self.passivePlayer.activeMinions)):
-					# 					self.attackMinion(self.activePlayer.activeMinions[i],k)
-					# 				self.attackFace(self.activePlayer.activeMinions[i])
-									
-					# 			except:
-					# 				pass
+					for i in range (len(self.activePlayer.hand)):
+						try:
+							self.playCard(i)
+							# time.sleep(0.2)
+						except:
+							pass
+					# time.sleep(1)
+					for k in range(0,10):
+						for i in range (len(self.activePlayer.activeMinions)):
+							face = random.randint(0,10)
+							if face>2:
+								try:
+									# print("bot går face")
+									self.attackFace(self.activePlayer.activeMinions[i])
+									for k in range (len(self.passivePlayer.activeMinions)):
+										self.attackMinion(self.activePlayer.activeMinions[i],k)
+								except:
+									pass
+							else:
+								try:
+									# print("bot går minions")
+									for k in range (len(self.passivePlayer.activeMinions)):
+										self.attackMinion(self.activePlayer.activeMinions[i],k)
+									self.attackFace(self.activePlayer.activeMinions[i])
+									 
+								except:
+									pass
 					if self.activePlayer == self.player1 and self.printing:
 						self.printPassiveHand()
 						self.printGameState()
