@@ -479,8 +479,29 @@ class Game:
 		for minion in self.activePlayer.activeMinions:
 			minion.onRoundStart(self)
 
-	def mulligan(self):
-		pass
+	def mulligan(self,player):
+		print("Your hand:")
+		c=0
+		for card in player.hand:
+			c+=1
+		self.printHand()
+		remove = str(input("Which cards do you want to remove?: (e.g. '02')"))
+		k=0
+		for card in remove:
+			# print("removing",card)
+			tempCard = player.hand.pop(int(card)-k)
+			print(tempCard.name)
+			player.deck.cards.append(tempCard)
+			k+=1
+		player.deck.shuffle()
+		for card in remove:
+			cardDrawn = player.deck.draw()
+			player.hand.append( cardDrawn)
+		
+		print("Done with mulligan")
+		for card in player.hand:
+			print(card.name)
+		
 
 	def updateContinousEffects(self):
 		for minion in self.activePlayer.activeMinions:
@@ -717,6 +738,8 @@ class Game:
 		coin.setEffect(coinEffect)
 		self.passivePlayer.hand.append(copy.deepcopy(coin))
 		self.draw(3,"a")
+		if self.activePlayer.AI==False:
+			self.mulligan(self.activePlayer)
 		self.draw(4,"p")
 		if self.againstAI:
 			self.passivePlayer.AI=True
