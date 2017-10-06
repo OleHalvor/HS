@@ -42,6 +42,7 @@ class Minion(Card):
 		self.frozenRounds = 0
 		self.hasCharge = False
 		self.hasTaunt = False
+		self.onlyAbleToAttackMinions = False
 
 		self.setDescription("")
 
@@ -66,6 +67,16 @@ class Minion(Card):
 			pass
 		self.onSpellOwnRound = onSpellCastOwnRound
 		self.owner = None
+
+		def afterAttackFunc(game,minion):
+			pass
+		self.afterAttack = afterAttackFunc
+
+	def setAfterAttack(self,action):
+		self.afterAttack = action
+
+	def setOnlyAbleToAttackMinions(self,value):
+		self.onlyAbleToAttackMinions=value
 
 	def setCharge(self,value):
 		self.hasCharge=value

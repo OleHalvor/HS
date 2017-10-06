@@ -5,6 +5,19 @@ from game import Game
 import copy
 import random
 
+#Usefull functions:
+def damageAllMinions(game,amount):
+	for minion in game.activePlayer.activeMinions:
+		minion.damage(amount)
+	for minion in game.passivePlayer.activeMinions:
+		minion.damage(amount)
+
+def healAllMinions(game,amount):
+	for minion in game.activePlayer.activeMinions:
+		minion.heal(amount)
+	for minion in game.passivePlayer.activeMinions:
+		minion.heal(amount)
+
 #This is the main file of the game, i.e. this is the file you run.
 #This is also the file where you define cards, decks and players
 
@@ -15,6 +28,7 @@ import random
 #The third argument is the attack value
 #The fourth argumen is the health value
 bjarne = Minion("Bjarne",2,1,2)
+bjarne.setDescription("Worst minion in the game")
 
 #If you wish to add a battlecry this is the way:
 munk = Minion("Munken",1,1,1)
@@ -56,11 +70,6 @@ bok.setTargetOwnMinions(True)
 footman = Minion("Goldshire Footman",1,1,2)
 footman.setTaunt(True)
 
-selv = Minion("Selvskader",1,1,1)
-def selvskad(game,minion):
-	game.activePlayer.health = game.activePlayer.health - 5
-selv.setBattlecry(selvskad)
-
 kultFolger = Minion("Kult-følger",2,4,1)
 def kultFolgerBC(game,minion):
 	friendlyMinions = minion.owner.activeMinions
@@ -74,10 +83,10 @@ def kultFolgerBC(game,minion):
 			minion.owner.activeMinions[int(target)].currentHealth=0
 			minion.setCharge(True)
 kultFolger.setBattlecry(kultFolgerBC)
+kultFolger.setDescription("Sacrifice a friendlt minion to gain charge")
 
 stromGjerde = Minion("Strømgjerde",7,2,9)
 stromGjerde.setTaunt(True)
-
 
 fulgeskremsel = Minion("Fulgeskremsel",3,1,5)
 def fulgreskremselEffect(game,minion):
@@ -87,6 +96,7 @@ def fulgreskremselEffect(game,minion):
 		minion.currentAttack = minion.maxAttack
 fulgeskremsel.setTaunt(True)
 fulgeskremsel.setContinousEffect(fulgreskremselEffect)
+fulgeskremsel.setDescription("Has +2 attack on opponents turn")
 
 hermeGaas = Minion("Hermegås",4,0,4)
 def hermeGaasEffect(game,minion):
@@ -102,12 +112,9 @@ def hermeGaasEffect(game,minion):
 hermeGaas.setContinousEffect(hermeGaasEffect)
 hermeGaas.setDescription("Attack always = attack of strongest minion on board")
 
-
-
-
 flowerGirl =Minion("FlowerGirl",1,1,3)
-yeti = Minion("Yeti",4,4,5)
 
+yeti = Minion("Yeti",4,4,5)
 
 wildPyro = Minion("Wild Pyromancer",2,3,2)
 def wildPyroEffect(game):
@@ -119,7 +126,6 @@ def wildPyroEffect(game):
 wildPyro.setOnSpellOwnRound(wildPyroEffect)
 wildPyro.setDescription("1 AOE damage when you cast a spell")
 
-
 juksePave = Minion("Juksepave",2,3,3)
 def juksePaveFunc(game,minion):
 	# heal = input("Who do you want to heal 5?")
@@ -129,9 +135,7 @@ def juksePaveFunc(game,minion):
 	# 	pass
 	game.titt(game.activePlayer,4)
 juksePave.setBattlecry(juksePaveFunc)
-juksePave.setDescription("Look at the next 4 cards in the deck")
-
-
+juksePave.setDescription("Looks at the next 4 cards in the deck")
 
 dataVirus = Minion("Datavirus",2,2,2)
 def frysTreFiender(game,minion):
@@ -157,7 +161,6 @@ def frysTreFiender(game,minion):
 dataVirus.setBattlecry(frysTreFiender)
 dataVirus.setDescription("Freezes three random enemy minions")
 
-
 #The following spells use the old way of defining spells, will be removed
 fireball = Spell("Fireball",4)
 fireball.addDamageOne(6,False)
@@ -180,8 +183,6 @@ darkBomb = Spell("DarkBomb",2)
 darkBomb.addDamageOne(3,False)
 darkBomb.setDescription("Deal 3 damage to one target")
 
-
-
 frostbolt = Spell("FrostBolt",2)
 frostbolt.setDescription("Deal 3 damage and freeze target")
 def frostBoltEffect(game):
@@ -203,14 +204,6 @@ def frostBoltEffect(game):
 			# print("Frostbolt hit face")
 			game.passivePlayer.reduceHealth(3)
 frostbolt.setEffect(frostBoltEffect)
-
-
-coin = Spell("The Coin",0)
-def coinEffect(game):
-	game.activePlayer.currentMana += 1
-coin.setEffect(coinEffect)
-
-
 
 def boomBotFunc(game,minion):
 	damage = random.randint(1,4)
@@ -237,10 +230,8 @@ def boomBotFunc(game,minion):
 		else:
 			game.activePlayer.activeMinions[target].damage(damage)
 			print("Boombot died and did",damage,"to",game.activePlayer.activeMinions[target].name)
-
-# Star med boombots uten DR
 drBoom = Minion("Dr. Boom",7,7,7)
-def boomFunc(game,minion): #Deathrattle
+def boomFunc(game,minion):
 	print("Dr boom spawned two boombots for",minion.owner)
 	boomBot0 = Minion("BoomBot",1,1,1)
 	boomBot1 = Minion("BoomBot",1,1,1)
@@ -249,46 +240,125 @@ def boomFunc(game,minion): #Deathrattle
 	game.summonMinion(boomBot0,minion.owner)
 	game.summonMinion(boomBot1,minion.owner)
 drBoom.setBattlecry(boomFunc)
+drBoom.setDescription("Spawns two BoomBots with DR: deal 1-4 damage to random enemy")
 
+dyrePlager = Minion("Dyreplager",4,5,2)
+dyrePlager.setOnlyAbleToAttackMinions(True)
+dyrePlager.setTaunt(True)
+dyrePlager.setDescription("May only attack minions")
 
+distraherendeSau = Minion("Distraherende Sau",2,0,1)
+distraherendeSau.setTaunt(True)
+def distraherendeSauBC(game,minion):
+	game.passivePlayer.deck.shuffle()
+distraherendeSau.setBattlecry(distraherendeSauBC)
+distraherendeSau.setDescription("Shuffles opponents deck")
+
+dusteNils = Minion("Duste-Nils",8,7,7)
+def dusteNilsBC(game,minion):
+	minion.currentHealth = minion.currentHealth - 2
+dusteNils.setTaunt(True)
+dusteNils.setBattlecry(dusteNilsBC)
+dusteNils.setDescription("BC: damages himself 2")
+
+henrikDenUberegnelige = Minion("Henrik den uberegnelige",4,2,7)
+henrikDenUberegnelige.setTaunt(True)
+henrikDenUberegnelige.setDescription("50/50 chance to hurt himself 5")
+def henrikBC(game,minion):
+	if random.randint(0,1)==0:
+		minion.currentHealth = minion.currentHealth - 5
+		print("Henrik cut his fingers while grating cheese")
+	else:
+		print("The RNG gods were kind to Henrik")
+henrikDenUberegnelige.setBattlecry(henrikBC)
+
+hansMedSkjoldet = Minion("Hans med skjoldet",3,2,4)
+hansMedSkjoldet.setTaunt(True)
+
+ostePop = Minion("Ostepop",3,2,3)
+ostePop.setTaunt(True)
+
+jehovasVitne = Minion("Jehovas Vitne",4,1,7)
+jehovasVitne.setTaunt(True)
+
+snaasaMannen = Minion("Snåsamannen",3,0,1)
+snaasaMannen.setTaunt(True)
+def snaasaMannenBC(game,minion):
+	game.draw(1,"a")
+	game.titt(minion.owner,4)
+snaasaMannen.setBattlecry(snaasaMannenBC)
+snaasaMannen.setDescription("Draw 1 card, Look at next 4 cards")
+
+glemmeRoyk = Spell("Glemmerøyk",1)
+def glemmeRoykEffect(game):
+	game.passivePlayer.deck.shuffle()
+	if game.activePlayer.AI == False:
+		target = input("Choose minion to be frozen")
+		game.passivePlayer.activeMinions[int(target)].freeze(1)
+	else:
+		targetMinions = game.passivePlayer.activeMinions
+		if len(targetMinions)>0:
+			target = targetMinions[random.randint(0,len(targetMinions)-1)]
+			target.freeze(1)
+glemmeRoyk.setEffect(glemmeRoykEffect)
+glemmeRoyk.setDescription("Shuffle oponents deck, freeze one enemy minion")
+
+combatMedic = Minion("Combat Medic",4,4,4)
+def combatMedicEffect(game,minion):
+	minion.heal(1)
+	print("Combat Medic healed himself 1")
+combatMedic.setAfterAttack(combatMedicEffect)
+
+angrendeAlv = Minion("Angrende Alv",6,6,6)
+def angrendeAlvBC(game,minion):
+	damageAllMinions(game,2)
+	healAllMinions(game,1)
+angrendeAlv.setBattlecry(angrendeAlvBC)
+angrendeAlv.setDescription("2 Damage AOE, Heal 1 AOE")
 
 
 
 #copy.deepcopy no longer needed
-
-deck1 = Deck("deck 1")
-deck1.addCard(frostbolt)
-deck1.addCard(copy.deepcopy(fireball))
-deck1.addCard(copy.deepcopy(concecration))
-deck1.addCard(copy.deepcopy(flamestrike))
-deck1.addCard(copy.deepcopy(dataVirus))
-deck1.addCard(copy.deepcopy(footman))
-deck1.addCard(copy.deepcopy(bjarne))
-deck1.addCard(copy.deepcopy(swipe))
-deck1.addCard(copy.deepcopy(yeti))
-deck1.addCard(copy.deepcopy(yeti))
-deck1.addCard(copy.deepcopy(bjarne))
-deck1.addCard(copy.deepcopy(flowerGirl))
-deck1.addCard(copy.deepcopy(swipe))
-deck1.addCard(copy.deepcopy(wildPyro))
-deck1.addCard(copy.deepcopy(darkBomb))
-deck1.addCard(copy.deepcopy(munk))
-deck1.addCard(copy.deepcopy(superHeal))
+deck1 = Deck("Deck 1")
+# deck1.addCard(frostbolt)
+# deck1.addCard(copy.deepcopy(fireball))
+# deck1.addCard(copy.deepcopy(concecration))
+# deck1.addCard(copy.deepcopy(flamestrike))
+# deck1.addCard(copy.deepcopy(dataVirus))
+# deck1.addCard(copy.deepcopy(footman))
+# deck1.addCard(copy.deepcopy(bjarne))
+# deck1.addCard(copy.deepcopy(swipe))
+# deck1.addCard(copy.deepcopy(yeti))
+# deck1.addCard(copy.deepcopy(yeti))
+# deck1.addCard(copy.deepcopy(bjarne))
+# deck1.addCard(copy.deepcopy(flowerGirl))
+# deck1.addCard(copy.deepcopy(swipe))
+# deck1.addCard(copy.deepcopy(wildPyro))
+# deck1.addCard(copy.deepcopy(darkBomb))
+# deck1.addCard(copy.deepcopy(munk))
+# deck1.addCard(copy.deepcopy(superHeal))
 deck1.addCard(copy.deepcopy(bok))
 deck1.addCard(juksePave)
 deck1.addCard(drBoom)
 deck1.addCard(hermeGaas)
 deck1.addCard(kultFolger)
 deck1.addCard(fulgeskremsel)
-deck1.addCard(fulgeskremsel)
-deck1.addCard(fulgeskremsel)
-deck1.addCard(fulgeskremsel)
-deck1.addCard(fulgeskremsel)
-deck1.addCard(fulgeskremsel)
-deck1.addCard(fulgeskremsel)
-deck1.addCard(fulgeskremsel)
-deck1.addCard(fulgeskremsel)
-
+deck1.addCard(dyrePlager)
+deck1.addCard(distraherendeSau)
+deck1.addCard(dusteNils)
+deck1.addCard(henrikDenUberegnelige)
+deck1.addCard(henrikDenUberegnelige)
+deck1.addCard(henrikDenUberegnelige)
+deck1.addCard(henrikDenUberegnelige)
+deck1.addCard(henrikDenUberegnelige)
+deck1.addCard(henrikDenUberegnelige)
+deck1.addCard(henrikDenUberegnelige)
+deck1.addCard(hansMedSkjoldet)
+deck1.addCard(ostePop)
+deck1.addCard(snaasaMannen)
+deck1.addCard(glemmeRoyk)
+deck1.addCard(combatMedic)
+deck1.addCard(angrendeAlv)
 
 
 
@@ -296,6 +366,7 @@ deck1.addCard(fulgeskremsel)
 
 
 deck2 = copy.deepcopy(deck1)
+deck2.name="Deck 2"
 
 
 player1 = Player("Player one",deck1)

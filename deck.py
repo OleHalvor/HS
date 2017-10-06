@@ -17,6 +17,7 @@ class Deck:
 
 	def shuffle(self):
 		random.shuffle(self.cards)
+		print(self.name,"has been shuffled")
 
 
 # from cards import Card, Minion

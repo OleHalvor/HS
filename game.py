@@ -499,8 +499,7 @@ class Game:
 			self.updateContinousEffects()
 			self.removeDeadMinions()
 			self.updateContinousEffects()
-		else:
-			print("Tried to attack with a illegal minion")
+			attacker.afterAttack(self,attacker)
 
 	def didAnyoneWin(self):
 		aWon = False
@@ -513,21 +512,29 @@ class Game:
 
 	def attackFace(self,attacker):
 		if not attacker.hasAttacked and attacker.frozenRounds<=0:
-			pMinions = self.passivePlayer.getActiveMinions()
-			taunts = []
-			for minion in pMinions:
-				if minion.hasTaunt:
-					taunts.append(minion)
-			if len(taunts)>0:
-				print("You need to attack a minion with taunt")
-				return False
-			self.passivePlayer.reduceHealth(attacker.getAttack())
-			print(attacker.name,"has attacked",self.passivePlayer.getName(),"for",attacker.currentAttack,"damage")
-			attacker.attacked()
+			if  attacker.onlyAbleToAttackMinions==False:
+				if attacker.currentAttack<=0:
+					print("This minion has no attack")
+				else:
+					pMinions = self.passivePlayer.getActiveMinions()
+					taunts = []
+					for minion in pMinions:
+						if minion.hasTaunt:
+							taunts.append(minion)
+					if len(taunts)>0:
+						print("You need to attack a minion with taunt")
+						return False
+					self.passivePlayer.reduceHealth(attacker.getAttack())
+					print(attacker.name,"has attacked",self.passivePlayer.getName(),"for",attacker.currentAttack,"damage")
+					attacker.attacked()
+					attacker.afterAttack(self,attacker)
+			else:
+				print("This minion may only attack minions")
 		else:
 			if self.activePlayer.AI==False:
 				print("that minion has to wait a round to attack")
 		self.updateContinousEffects()
+		
 
 	def removeDeadMinions(self):
 		listOfDeathrattles = []
