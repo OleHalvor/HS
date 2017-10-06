@@ -20,7 +20,7 @@ class Game:
 		self.playersConnected = 0
 		self.localGame = True
 		self.againstAI = True
-		self.simulation= False
+		self.simulation= True
 
 
 	def customPrint(text):
@@ -738,14 +738,14 @@ class Game:
 		coin.setEffect(coinEffect)
 		self.passivePlayer.hand.append(copy.deepcopy(coin))
 		self.draw(3,"a")
-		if self.activePlayer.AI==False:
-			self.mulligan(self.activePlayer)
 		self.draw(4,"p")
 		if self.againstAI:
 			self.passivePlayer.AI=True
 		if self.simulation:
 			self.passivePlayer.AI=True
 			self.activePlayer.AI=True
+		if self.activePlayer.AI==False:
+			self.mulligan(self.activePlayer)
 		gameOver = False
 		while not gameOver:
 			roundDone = False
@@ -772,34 +772,27 @@ class Game:
 						except:
 							pass
 					# time.sleep(1)
-					if self.activePlayer == self.player1:
-						self.printPassiveHand()
-						self.printGameState()
-						self.printHand()
-					for i in range (len(self.activePlayer.activeMinions)):
-						face = random.randint(0,2)
-						if face>0:
-							try:
-								# print("bot går face")
-								self.attackFace(self.activePlayer.activeMinions[i])
-								for k in range (len(self.passivePlayer.activeMinions)):
-									self.attackMinion(self.activePlayer.activeMinions[i],k)
-							except:
-								pass
-						else:
-							try:
-								# print("bot går minions")
-								for k in range (len(self.passivePlayer.activeMinions)):
-									self.attackMinion(self.activePlayer.activeMinions[i],k)
-								self.attackFace(self.activePlayer.activeMinions[i])
-								
-							except:
-								pass
-					# time.sleep(1)
-					if self.activePlayer == self.player1:
-						self.printPassiveHand()
-						self.printGameState()
-						self.printHand()
+					for k in range(0,10):
+						for i in range (len(self.activePlayer.activeMinions)):
+							face = random.randint(0,10)
+							if face>8:
+								try:
+									# print("bot går face")
+									self.attackFace(self.activePlayer.activeMinions[i])
+									for k in range (len(self.passivePlayer.activeMinions)):
+										self.attackMinion(self.activePlayer.activeMinions[i],k)
+								except:
+									pass
+							else:
+								try:
+									# print("bot går minions")
+									for k in range (len(self.passivePlayer.activeMinions)):
+										self.attackMinion(self.activePlayer.activeMinions[i],k)
+									self.attackFace(self.activePlayer.activeMinions[i])
+									
+								except:
+									pass
+					time.sleep(1)
 					# if self.removeDeadMinions():
 					# 	time.sleep(3)
 					aWon,pWon = self.didAnyoneWin()
@@ -807,9 +800,15 @@ class Game:
 						if aWon:
 							print("Player:",self.activePlayer.name,"has won the game!")
 							gameOver = True
+							self.printPassiveHand()
+							self.printGameState()
+							self.printHand()
 						if pWon:
 							print("Player:",self.passivePlayer.name,"has won the game!")
 							gameOver = True
+							self.printPassiveHand()
+							self.printGameState()
+							self.printHand()
 						break
 					print ("======== YOUR TURN ========")
 					self.nextTurn()

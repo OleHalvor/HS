@@ -350,6 +350,7 @@ combatMedic.setAfterAttack(combatMedicEffect)
 angrendeAlv = Minion("Angrende Alv",6,6,6)
 def angrendeAlvBC(game,minion):
 	damageAllMinions(game,2)
+	game.removeDeadMinions()
 	healAllMinions(game,1)
 angrendeAlv.setBattlecry(angrendeAlvBC)
 angrendeAlv.setDescription("2 Damage AOE, Heal 1 AOE")
