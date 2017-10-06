@@ -18,7 +18,7 @@ bjarne = Minion("Bjarne",2,1,2)
 
 #If you wish to add a battlecry this is the way:
 munk = Minion("Munken",1,1,1)
-def skad5(game):
+def skad5(game,minion):
 	game.passivePlayer.damageMinionOrHero(5)
 munk.setBattlecry(skad5)
 munk.setDescription("Deal 5 damage")
@@ -47,7 +47,9 @@ def bokEffect(game):
 				print("Invalid target")
 		else:
 			if (len(game.activePlayer.activeMinions))>0:
-				game.activePlayer.activeMinions[randint(0,len(game.activePlayer.activeMinions))]
+				targeT=random.randint(0,len(game.activePlayer.activeMinions)-1)
+				print("AI BOK TARGET",targeT)
+				game.activePlayer.activeMinions[targeT].buff(4,4)
 bok.setEffect(bokEffect)
 bok.setTargetOwnMinions(True)
 
@@ -55,7 +57,7 @@ footman = Minion("Goldshire Footman",1,1,2)
 footman.setTaunt(True)
 
 selv = Minion("Selvskader",1,1,1)
-def selvskad(game):
+def selvskad(game,minion):
 	game.activePlayer.health = game.activePlayer.health - 5
 selv.setBattlecry(selvskad)
 
@@ -67,16 +69,14 @@ stromGjerde.setTaunt(True)
 hermeGaas = Minion("Hermegås",4,0,4)
 def hermeGaasEffect(game,minion):
 	highestAttack = 0
-	if len(game.activePlayer.activeMinions) == 1 and len(game.passivePlayer.activeMinions) == 0:
-		minion.currentAttack = 0
-	else:
-		for minionTemp in game.activePlayer.activeMinions:
-			if minionTemp.currentAttack > highestAttack:
-				highestAttack = minionTemp.currentAttack
-		for minionTemp in game.passivePlayer.activeMinions:
-			if minionTemp.currentAttack > highestAttack:
-				highestAttack = minionTemp.currentAttack
-		minion.currentAttack = highestAttack
+	minion.currentAttack = 0
+	for minionTemp in game.activePlayer.activeMinions:
+		if minionTemp.currentAttack > highestAttack:
+			highestAttack = minionTemp.currentAttack
+	for minionTemp in game.passivePlayer.activeMinions:
+		if minionTemp.currentAttack > highestAttack:
+			highestAttack = minionTemp.currentAttack
+	minion.currentAttack = highestAttack
 hermeGaas.setContinousEffect(hermeGaasEffect)
 hermeGaas.setDescription("Attack always = attack of strongest minion on board")
 
@@ -99,7 +99,7 @@ wildPyro.setDescription("1 AOE damage when you cast a spell")
 
 
 juksePave = Minion("Juksepave",2,3,3)
-def juksePaveFunc(game):
+def juksePaveFunc(game,minion):
 	# heal = input("Who do you want to heal 5?")
 	# if heal=="f":
 	# 	pass
@@ -112,7 +112,7 @@ juksePave.setDescription("Look at the next 4 cards in the deck")
 
 
 dataVirus = Minion("Datavirus",2,2,2)
-def frysTreFiender(game):
+def frysTreFiender(game,minion):
 	numberOfEnemies = len(game.passivePlayer.activeMinions)
 	if numberOfEnemies == 0:
 		pass
@@ -187,7 +187,10 @@ frostbolt.setEffect(frostBoltEffect)
 def boomBotFunc(game,minion):
 	damage = random.randint(1,4)
 	#Random 4 damage
-	player = random.randint(0,1)
+	if minion.owner == game.activePlayer:
+		player = 1
+	else:
+		player = 0
 	if player==1:
 		possibleTargets = game.passivePlayer.activeMinions
 		target = random.randint(0,len(possibleTargets))
@@ -210,7 +213,7 @@ def boomBotFunc(game,minion):
 # Star med boombots uten DR
 drBoom = Minion("Dr. Boom",7,7,7)
 def boomFunc(game,minion): #Deathrattle
-	print("Dr boom died an spawned two boombots for",minion.owner)
+	print("Dr boom spawned two boombots for",minion.owner)
 	boomBot0 = Minion("BoomBot",1,1,1)
 	boomBot1 = Minion("BoomBot",1,1,1)
 	boomBot0.setDeathRattle(boomBotFunc)
@@ -235,6 +238,7 @@ deck1.addCard(copy.deepcopy(footman))
 deck1.addCard(copy.deepcopy(bjarne))
 deck1.addCard(copy.deepcopy(swipe))
 deck1.addCard(copy.deepcopy(yeti))
+deck1.addCard(copy.deepcopy(yeti))
 deck1.addCard(copy.deepcopy(bjarne))
 deck1.addCard(copy.deepcopy(flowerGirl))
 deck1.addCard(copy.deepcopy(swipe))
@@ -244,12 +248,9 @@ deck1.addCard(copy.deepcopy(munk))
 deck1.addCard(copy.deepcopy(superHeal))
 deck1.addCard(copy.deepcopy(bok))
 deck1.addCard(juksePave)
-deck1.addCard(juksePave)
 deck1.addCard(drBoom)
 deck1.addCard(hermeGaas)
-deck1.addCard(hermeGaas)
-deck1.addCard(hermeGaas)
-deck1.addCard(hermeGaas)
+
 
 
 

@@ -385,7 +385,7 @@ class Game:
 
 	def canAttack(self):
 		for minion in self.activePlayer.activeMinions:
-			if minion.hasAttacked==False and minion.frozenRounds>=0:
+			if minion.hasAttacked==False and minion.frozenRounds<=0:
 				return True
 
 	def playCard(self,cardPosition):
@@ -404,7 +404,7 @@ class Game:
 			return False
 
 	def playSpell(self,cardPosition):
-		spell = self.activePlayer.hand[-1]
+		spell = self.activePlayer.hand[cardPosition]
 		if spell.targetOwnMinions and len(self.activePlayer.activeMinions)==0:
 			print("This spell needs a friendly target")
 			return False
@@ -444,14 +444,14 @@ class Game:
 		tempMinion = self.activePlayer.hand.pop(cardPosition)
 		print (self.activePlayer.name," played minion: ", tempMinion)
 		self.activePlayer.activeMinions.append(tempMinion)
-		tempMinion.bc(self)
+		tempMinion.bc(self,tempMinion)
 		self.removeDeadMinions()
 		self.updateContinousEffects()
 
 	def summonMinion(self,minion,player): #Summon minion, called from effects in other cards
 		newMinion = copy.deepcopy(minion)
-		player.activeMinions.append(copy.deepcopy(newMinion))
-		newMinion.bc(self)
+		player.activeMinions.append(newMinion)
+		newMinion.bc(self,newMinion)
 		newMinion.setOwner(player)
 		self.removeDeadMinions()
 		self.updateContinousEffects()
@@ -525,6 +525,7 @@ class Game:
 		self.updateContinousEffects()
 
 	def removeDeadMinions(self):
+		listOfDeathrattles = []
 		killedAny=False
 		count = 0
 		for minion in self.activePlayer.activeMinions:
@@ -532,7 +533,8 @@ class Game:
 				
 				print("{}'s minion '{}' has died".format(self.activePlayer.getName(),minion.getName()))
 				self.activePlayer.activeMinions.pop(count)
-				minion.dr(self,minion) #DeathRattle
+				listOfDeathrattles.append(minion)
+
 				killedAny=True
 				break
 			count += 1
@@ -542,11 +544,13 @@ class Game:
 				
 				print("{}'s minion '{}' has died".format(self.passivePlayer.getName(),minion.getName()))
 				self.passivePlayer.activeMinions.pop(count)
-				minion.dr(self,minion) #DeathRattle
+				listOfDeathrattles.append(minion)
 				killedAny=True
 				break
 			count += 1
 		if (killedAny):
+			for minion in listOfDeathrattles:
+				minion.dr(self,minion)
 			self.removeDeadMinions()
 
 	def getAvailableMoves(self):
