@@ -46,6 +46,10 @@ class Minion(Card):
 		self.addDescription("")
 
 
+		def contEffectF(game,minion):
+			pass
+		self.continousEffect = contEffectF
+
 		def deathRattleF(game,minion):
 			pass
 		self.dr = deathRattleF
@@ -62,6 +66,9 @@ class Minion(Card):
 			pass
 		self.onSpellOwnRound = onSpellCastOwnRound
 		self.owner = None
+
+	def setContinousEffect(self,action):
+		self.continousEffect = action
 
 	def setDeathRattle(self,action):
 		self.dr = action
@@ -120,6 +127,7 @@ class Minion(Card):
 
 	def damage(self,damage):
 		self.currentHealth = self.currentHealth - damage
+		print(self.name,"received",damage,"damage")
 
 	def setHealth(self,newHealth):
 		self.health = newHealth

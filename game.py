@@ -25,9 +25,6 @@ class Game:
 		else:
 			print(text)
 
-
-
-
 	def getInput(self,description):
 		if not self.localGame:
 			addr = self.activePlayer.IP
@@ -37,8 +34,6 @@ class Game:
 			return conn.recv(1024).decode()
 		else:
 			return (input(description))
-
-
 
 	def startServer(self):
 		self.s.bind((self.TCP_IP, self.TCP_PORT))
@@ -68,11 +63,11 @@ class Game:
 			# 		self.player2.IP=addr
 			# 		self.player2.connection = conn
 			# 		print("Player 2 is:",addr)
+
 	def initialize(self,player1,player2):
 		self.startServer()
 		self.start()
 
-	
 	def printCardDescription(self,cards):
 		c = 0
 		print("index - cost - name - effects")
@@ -125,7 +120,7 @@ class Game:
 		line5=''
 		cardsInHand = self.activePlayer.getHand()
 		for i in range(len(cardsInHand)):
-			line00+="{} {} - ".format(i,cardsInHand[i].getName())
+			line00+="{} - ".format(cardsInHand[i].getName())
 			line0+=" _____  "
 			line1+="|{}    | ".format(cardsInHand[i].cost)
 			if (cardsInHand[i].getType()=="Minion"):
@@ -139,8 +134,9 @@ class Game:
 				line2+="|     | "
 			line4+="|_____| "
 			line5+="   {}    ".format(i)
-
+		
 		if (len(cardsInHand)>0):
+			print("MANA: {}/{}".format(self.activePlayer.currentMana,self.activePlayer.maxMana))
 			print(line00)
 			print(line0)
 			print(line1)
@@ -148,7 +144,8 @@ class Game:
 			print(line3)
 			print(line4)
 			print(line5)
-		print("*{}*\n   MANA: {}/{}".format(self.activePlayer.getName(), self.activePlayer.currentMana,self.activePlayer.maxMana))
+		else:
+			print("*{}*\n   MANA: {}/{}".format(self.activePlayer.getName(), self.activePlayer.currentMana,self.activePlayer.maxMana))
 
 	def printPassivePlayerActiveMinion(self):
 		# 8 kolonner per minion
@@ -294,8 +291,15 @@ class Game:
 		for minion in self.activePlayer.activeMinions:
 			minion.onRoundStart(self)
 
+
 	def mulligan(self):
 		pass
+
+	def updateContinousEffects(self):
+		for minion in self.activePlayer.activeMinions:
+			minion.continousEffect(self,minion)
+		for minion in self.passivePlayer.activeMinions:
+			minion.continousEffect(self,minion)
 
 	def canDoSomething(self):
 		if self.canPlayCard():
@@ -360,6 +364,7 @@ class Game:
 		spell.effect(self)
 		self.ActivateOnSpellCastMinions()
 		self.removeDeadMinions()
+		self.updateContinousEffects()
 
 	def playMinion(self,cardPosition):
 		tempMinion = self.activePlayer.hand.pop(cardPosition)
@@ -367,6 +372,7 @@ class Game:
 		self.activePlayer.activeMinions.append(tempMinion)
 		tempMinion.bc(self)
 		self.removeDeadMinions()
+		self.updateContinousEffects()
 
 	def summonMinion(self,minion,player): #Summon minion, called from effects in other cards
 		newMinion = copy.deepcopy(minion)
@@ -374,7 +380,7 @@ class Game:
 		newMinion.bc(self)
 		newMinion.setOwner(player)
 		self.removeDeadMinions()
-
+		self.updateContinousEffects()
 
 	def ActivateOnSpellCastMinions(self):
 		for minion in self.activePlayer.activeMinions:
@@ -413,6 +419,9 @@ class Game:
 		attacker.currentHealth=p1Health
 		print(attacker.getName(),"attacked",p2minion.getName())
 		attacker.attacked()
+		self.updateContinousEffects()
+		self.removeDeadMinions()
+		self.updateContinousEffects()
 
 	def didAnyoneWin(self):
 		aWon = False
@@ -439,6 +448,7 @@ class Game:
 		else:
 			if self.activePlayer.AI==False:
 				print("that minion has to wait a round to attack")
+		self.updateContinousEffects()
 
 	def removeDeadMinions(self):
 		killedAny=False
@@ -481,8 +491,6 @@ class Game:
 			count += 1
 		return cards
 
-
-
 	def start(self):
 		print("----The game is starting----")
 		self.activePlayer.deck.shuffle()
@@ -499,6 +507,7 @@ class Game:
 		while not gameOver:
 			roundDone = False
 			while not (roundDone):
+				self.updateContinousEffects()
 				#New players turn
 				for minion in self.activePlayer.activeMinions:
 					minion.readyToAttack()

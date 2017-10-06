@@ -59,6 +59,26 @@ selv.setBattlecry(selvskad)
 
 
 
+stromGjerde = Minion("Strømgjerde",7,2,9)
+stromGjerde.giveTaunt()
+
+hermeGaas = Minion("Hermegås",4,0,4)
+def hermeGaasEffect(game,minion):
+	highestAttack = 0
+	if len(game.activePlayer.activeMinions) == 1 and len(game.passivePlayer.activeMinions) == 0:
+		minion.currentAttack = 0
+	else:
+		for minionTemp in game.activePlayer.activeMinions:
+			if minionTemp.currentAttack > highestAttack:
+				highestAttack = minionTemp.currentAttack
+		for minionTemp in game.passivePlayer.activeMinions:
+			if minionTemp.currentAttack > highestAttack:
+				highestAttack = minionTemp.currentAttack
+		minion.currentAttack = highestAttack
+hermeGaas.setContinousEffect(hermeGaasEffect)
+
+
+
 
 flowerGirl =Minion("FlowerGirl",1,1,3)
 yeti = Minion("Yeti",4,4,5)
@@ -183,7 +203,7 @@ def boomBotFunc(game,minion):
 			print("Boombot died and did",damage,"to",game.activePlayer.activeMinions[target].name)
 
 # Star med boombots uten DR
-drBoom = Minion("Dr. Boom",1,2,2)
+drBoom = Minion("Dr. Boom",7,7,7)
 def boomFunc(game,minion): #Deathrattle
 	print("Dr boom died an spawned two boombots for",minion.owner)
 	boomBot0 = Minion("BoomBot",1,1,1)
@@ -192,7 +212,7 @@ def boomFunc(game,minion): #Deathrattle
 	boomBot1.setDeathRattle(boomBotFunc)
 	game.summonMinion(boomBot0,minion.owner)
 	game.summonMinion(boomBot1,minion.owner)
-drBoom.setDeathRattle(boomFunc)
+drBoom.setBattlecry(boomFunc)
 
 
 
@@ -202,14 +222,10 @@ drBoom.setDeathRattle(boomFunc)
 
 deck1 = Deck("deck 1")
 deck1.addCard(frostbolt)
-deck1.addCard(frostbolt)
-deck1.addCard(copy.deepcopy(fireball))
 deck1.addCard(copy.deepcopy(fireball))
 deck1.addCard(copy.deepcopy(concecration))
 deck1.addCard(copy.deepcopy(flamestrike))
 deck1.addCard(copy.deepcopy(dataVirus))
-deck1.addCard(copy.deepcopy(dataVirus))
-deck1.addCard(copy.deepcopy(footman))
 deck1.addCard(copy.deepcopy(footman))
 deck1.addCard(copy.deepcopy(bjarne))
 deck1.addCard(copy.deepcopy(swipe))
@@ -217,32 +233,19 @@ deck1.addCard(copy.deepcopy(yeti))
 deck1.addCard(copy.deepcopy(bjarne))
 deck1.addCard(copy.deepcopy(flowerGirl))
 deck1.addCard(copy.deepcopy(swipe))
-deck1.addCard(copy.deepcopy(swipe))
-deck1.addCard(copy.deepcopy(wildPyro))
 deck1.addCard(copy.deepcopy(wildPyro))
 deck1.addCard(copy.deepcopy(darkBomb))
-deck1.addCard(copy.deepcopy(darkBomb))
-deck1.addCard(copy.deepcopy(munk))
 deck1.addCard(copy.deepcopy(munk))
 deck1.addCard(copy.deepcopy(superHeal))
-deck1.addCard(copy.deepcopy(superHeal))
-deck1.addCard(copy.deepcopy(bok))
 deck1.addCard(copy.deepcopy(bok))
 deck1.addCard(juksePave)
 deck1.addCard(juksePave)
 deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
-deck1.addCard(drBoom)
+deck1.addCard(hermeGaas)
+deck1.addCard(hermeGaas)
+deck1.addCard(hermeGaas)
+deck1.addCard(hermeGaas)
+
 
 
 
