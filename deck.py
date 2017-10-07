@@ -5,6 +5,10 @@ class Deck:
 	def __init__(self,name):
 		self.name = name
 		self.cards = []
+		self.owner = None
+
+	def setOwner(self,owner):
+		self.owner = owner
 
 	def addCard(self,card):
 		self.cards.append(copy.deepcopy(card))
@@ -16,8 +20,10 @@ class Deck:
 		return self.cards.pop()
 
 	def shuffle(self):
+		if self.owner.game.printing:
+			print(self.name,"has been shuffled")
 		random.shuffle(self.cards)
-		print(self.name,"has been shuffled")
+		
 
 
 # from cards import Card, Minion

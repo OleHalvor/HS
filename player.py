@@ -3,10 +3,12 @@ import random
 class Player:
 
 	def __init__(self,name,deck):
+		self.game = None
 		self.name = name
-		self.maxHealth = 15
-		self.health = 15
+		self.maxHealth = 30
+		self.health = 30
 		self.deck = deck
+		self.deck.owner=self
 		self.hand = []
 		self.activeMinions = []
 		self.maxMana = 1
@@ -14,7 +16,11 @@ class Player:
 		self.AI=False
 		self.IP='127.0.0.1'
 		self.connection = ''
+		self.printing = True
 
+
+	def setGame(self,game):
+		self.game = game
 
 	def setIpAndPort(ip,port):
 		self.IP = ip 
@@ -50,7 +56,8 @@ class Player:
 			print("Something did",amount,"damage to face")
 		else:
 			self.activeMinions[int(index)].damage(amount)
-			print("Something did",amount,"damage to minion #",index)
+			if self.game.printing:
+				print("Something did",amount,"damage to minion #",index)
 
 	def changeDeck(self,newDeck):
 		self.deck = newDeck

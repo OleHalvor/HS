@@ -92,7 +92,8 @@ class Minion(Card):
 		self.currentAttack += attack
 
 	def heal(self,amount):
-		print(self.name,"was healed for",amount)
+		if self.owner.game.printing:
+				print(self.name,"was healed for",amount)
 		self.currentHealth = self.currentHealth + amount
 		if self.currentHealth > self.maxHealth:
 			self.currentHealth = self.maxHealth
@@ -122,12 +123,14 @@ class Minion(Card):
 
 	def freeze(self,rounds):
 		self.frozenRounds += rounds+1
-		print(self.name,"has been frozen")
+		if self.owner.printing:
+				print(self.name,"has been frozen")
 		
 
 	def freezeTick(self):
 		if self.frozenRounds == 1:
-			print("{}'s {} is no longer frozen".format(self.owner.name, self.name))
+			if self.owner.game.printing:
+				print("{}'s {} is no longer frozen".format(self.owner.name, self.name))
 		self.frozenRounds = self.frozenRounds -1
 		if self.frozenRounds <0:
 			self.frozenRounds = 0
@@ -143,7 +146,8 @@ class Minion(Card):
 
 	def damage(self,damage):
 		self.currentHealth = self.currentHealth - damage
-		print(self.name,"received",damage,"damage")
+		if self.owner.game.printing:
+				print(self.name,"received",damage,"damage")
 
 	def setHealth(self,newHealth):
 		self.health = newHealth
