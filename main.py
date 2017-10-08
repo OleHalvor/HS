@@ -446,6 +446,7 @@ collection.append(ragnaros)
 deck1 = Deck("Deck 1")
 for card in collection:
 	deck1.addCard(card)
+	
 
 
 

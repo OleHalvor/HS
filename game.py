@@ -35,6 +35,7 @@ class Game:
 		enemyHandLength = len(game.passivePlayer.hand)
 		numberOfEnemyMinions = len(game.passivePlayer.activeMinions)
 		numberOfFriendlyMinions = len(game.activePlayer.activeMinions)
+		remainingMana = game.activePlayer.currentMana
 
 		for minion in game.activePlayer.activeMinions:
 			totalAttackAndHealYourSide += minion.currentAttack + minion.currentHealth
@@ -45,10 +46,12 @@ class Game:
 		numberOfEnemyMinionsScale = numberOfFriendlyMinions / 3
 		yourHealthScale = yourHealth/30
 		enemyHealthScale = enemyHealth/30
-		ownHandLengthScale = ownHandLength/4
+		ownHandLengthScale = ownHandLength/7
 		enemyHandLengthScale = enemyHandLength/4
 		totalAttackAndHealYourSideScale = totalAttackAndHealYourSide / 30
 		totalAttackAndHealEnemySideScale = totalAttackAndHealEnemySide / 30
+		remainingManaScale = remainingMana / 10
+
 		if yourHealthScale>1: yourHealthScale = 1
 		if enemyHealthScale>1: enemyHealthScale = 1
 		if ownHandLengthScale>1: ownHandLengthScale = 1
@@ -62,7 +65,10 @@ class Game:
 
 
 		# utility = (enemyHealthScale*((yourHealthScale*-5)+(ownHandLengthScale*-1)+(enemyHandLengthScale)+(totalAttackAndHealYourSide*-1)+(totalAttackAndHealEnemySideScale)))
-		utility = (enemyHealthScale * 10) - (yourHealthScale*10) -(numberOfFriendlyMinionsScale*5)+(numberOfEnemyMinionsScale*5)+ (totalAttackAndHealEnemySideScale*5) - (totalAttackAndHealYourSideScale*5) + (enemyHandLengthScale*1) - (ownHandLengthScale*1)
+		utility =  (enemyHealthScale * 6) - (yourHealthScale*6) -(numberOfFriendlyMinionsScale*5)+(numberOfEnemyMinionsScale*5)+ (totalAttackAndHealEnemySideScale*5) - (totalAttackAndHealYourSideScale*5) + (enemyHandLengthScale*1) - (ownHandLengthScale*3) - (remainingManaScale*0.1)
+		if (enemyHealth - yourHealth)>12 :
+			utility = (enemyHealthScale * 3) + (yourHealthScale*-12) + (numberOfFriendlyMinionsScale*-1) + (numberOfEnemyMinionsScale * 10) + (totalAttackAndHealEnemySideScale * 15) + (totalAttackAndHealYourSideScale*-1) + (ownHandLengthScale * -0.5) + (remainingManaScale * -0.05)
+			# print("Util under 10nliv")
 
 		# 0 utility is optimal state
 		return utility
@@ -124,7 +130,7 @@ class Game:
 		bestAttackMinionTarget = [bestAttackMinion,bestAttackTarget]
 		time.sleep(0)
 		# print("Util: card, attMinion, attFace, current")
-		print("utilities:",bestCardUtility,bestAttackMinionUtility,bestAttackFaceUtility,currentUtility)
+		# print("utilities:",bestCardUtility,bestAttackMinionUtility,bestAttackFaceUtility,currentUtility)
 		if currentUtility <= bestCardUtility and currentUtility <= bestAttackMinionUtility and currentUtility < bestAttackFaceUtility:
 			return ("noMoreMoves",-1)
 		if bestCardUtility < bestAttackMinionUtility and bestCardUtility < bestAttackFaceUtility:
