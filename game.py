@@ -22,6 +22,8 @@ class Game:
 		self.againstAI = True
 		self.simulation= False
 		self.printing = True
+		self.debug = True
+		self.isSimulated = False
 
 	def evaluateState(game):
 		totalAttackAndHealYourSide = 0 # Høyere er bedre
@@ -29,7 +31,7 @@ class Game:
 		yourHealth = game.activePlayer.health # Høyere er bedre
 		enemyHealth = game.passivePlayer.health # Lavere er bedre
 		ownHandLength = len(game.activePlayer.hand)
-		print("own hand",ownHandLength)
+		# print("own hand",ownHandLength)
 		enemyHandLength = len(game.passivePlayer.hand)
 		numberOfEnemyMinions = len(game.passivePlayer.activeMinions)
 		numberOfFriendlyMinions = len(game.activePlayer.activeMinions)
@@ -39,13 +41,12 @@ class Game:
 		for minion in game.passivePlayer.activeMinions:
 			totalAttackAndHealEnemySide += minion.currentAttack + minion.currentHealth
 		
-
-		numberOfFriendlyMinionsScale = numberOfFriendlyMinions / 4
-		numberOfEnemyMinionsScale = numberOfFriendlyMinions / 4
+		numberOfFriendlyMinionsScale = numberOfFriendlyMinions / 3
+		numberOfEnemyMinionsScale = numberOfFriendlyMinions / 3
 		yourHealthScale = yourHealth/30
 		enemyHealthScale = enemyHealth/30
-		ownHandLengthScale = ownHandLength/5
-		enemyHandLengthScale = enemyHandLength/5
+		ownHandLengthScale = ownHandLength/4
+		enemyHandLengthScale = enemyHandLength/4
 		totalAttackAndHealYourSideScale = totalAttackAndHealYourSide / 30
 		totalAttackAndHealEnemySideScale = totalAttackAndHealEnemySide / 30
 		if yourHealthScale>1: yourHealthScale = 1
@@ -60,21 +61,23 @@ class Game:
 
 
 
-		utility = (enemyHealthScale*((yourHealthScale*-5)+(ownHandLengthScale*-1)+(enemyHandLengthScale)+(totalAttackAndHealYourSide*-1)+(totalAttackAndHealEnemySideScale)))
-		utility = (enemyHealthScale * 1) - (yourHealthScale*1) -(numberOfFriendlyMinionsScale*0.5)+(numberOfEnemyMinionsScale*0.5)+ (totalAttackAndHealEnemySideScale*2) - (totalAttackAndHealYourSideScale*2) + (enemyHandLengthScale*1) - (ownHandLengthScale*1)
-		# utility = -totalAttackAndHealEnemySide
+		# utility = (enemyHealthScale*((yourHealthScale*-5)+(ownHandLengthScale*-1)+(enemyHandLengthScale)+(totalAttackAndHealYourSide*-1)+(totalAttackAndHealEnemySideScale)))
+		utility = (enemyHealthScale * 100) - (yourHealthScale*100) -(numberOfFriendlyMinionsScale*10)+(numberOfEnemyMinionsScale*10)+ (totalAttackAndHealEnemySideScale*10) - (totalAttackAndHealYourSideScale*10) + (enemyHandLengthScale*1) - (ownHandLengthScale*1)
 
 		# 0 utility is optimal state
 		return utility
 
 	def generateBestLegalMove(game):
-		game=copy.deepcopy(game)
+		nyGame = copy.deepcopy(game)
+		nyGame2 = copy.deepcopy(game)
 		currentUtility = game.evaluateState()
 		bestCard = -1
 		bestCardUtility = 999999
-		for card in range(len(game.activePlayer.hand)):
-			tempGame=copy.deepcopy(game)
+
+		for card in range(len(nyGame.activePlayer.hand)):
+			tempGame=copy.deepcopy(nyGame)
 			tempGame.printing=False
+			tempGame.isSimulated=True
 			tempGame.playCard(card)
 			tempUtility = tempGame.evaluateState()
 			if tempUtility < bestCardUtility:
@@ -86,34 +89,43 @@ class Game:
 		bestAttackMinionUtility = 999999
 
 		bestAttackFaceUtility = 999999
-		for minion in game.activePlayer.activeMinions:
-			tempGame=copy.deepcopy(game)
+		for minion in  range(len(nyGame2.activePlayer.activeMinions)):
+
+			tempMinion = copy.deepcopy(minion)
+			tempGame=copy.deepcopy(nyGame2)
 			tempGame.printing=False
-			possibleTargets = tempGame.getPossibleTargetsOfMinion(minion)
+			tempGame.isSimulated=True
+			possibleTargets = tempGame.getPossibleTargetsOfMinion(tempGame.activePlayer.activeMinions[tempMinion])
 			for target in possibleTargets[0]:
 				tempGame=copy.deepcopy(game)
 				tempGame.printing=False
-				tempGame.attackMinion(minion,target)
+				tempGame.attackMinion(tempGame.activePlayer.activeMinions[tempMinion],target)
+				# tempGame.activePlayer.activeMinions[tempMinion].hasAttacked=False
 				tempUtility = tempGame.evaluateState()
 				if tempUtility < bestAttackMinionUtility:
 					bestAttackMinionUtility = tempUtility
-					bestAttackMinion = minion
+					bestAttackMinion = tempMinion
 					bestAttackTarget = target
-
+		for minion in  range(len(nyGame2.activePlayer.activeMinions)):
+			# print("sjekker value for å gå face for minion",minion)
+			tempMinion = copy.deepcopy(minion)
 			if possibleTargets[1]: # Face virker ikke
-				print("tester face")
-				tempGame=copy.deepcopy(game)
+				# print("tester face")
+				tempGame=copy.deepcopy(nyGame2)
 				tempGame.printing=False
-				tempGame.attackFace(minion)
+				tempGame.attackFace(tempGame.activePlayer.activeMinions[tempMinion])
+				# tempGame.activePlayer.activeMinions[tempMinion].hasAttacked=False
 				tempUtility = tempGame.evaluateState()
-				if tempUtility < bestAttackMinionUtility:
+				# print("angriping med",tempMinion,"gir utility: ",tempUtility)
+				if tempUtility < bestAttackFaceUtility:
 					bestAttackFaceUtility = tempUtility
-					bestAttackMinion = minion
+					bestAttackMinion = tempMinion
 					bestAttackTarget = -1
 		bestAttackMinionTarget = [bestAttackMinion,bestAttackTarget]
 		time.sleep(0)
+		# print("Util: card, attMinion, attFace, current")
 		print("utilities:",bestCardUtility,bestAttackMinionUtility,bestAttackFaceUtility,currentUtility)
-		if currentUtility < bestCardUtility and currentUtility < bestAttackMinionUtility and currentUtility < bestAttackFaceUtility:
+		if currentUtility <= bestCardUtility and currentUtility <= bestAttackMinionUtility and currentUtility < bestAttackFaceUtility:
 			return ("noMoreMoves",-1)
 		if bestCardUtility < bestAttackMinionUtility and bestCardUtility < bestAttackFaceUtility:
 			return ("bestCard",bestCard)
@@ -277,8 +289,11 @@ class Game:
 		line5=''
 		# line6=''
 		line7=''
+		cards =''
 		cardsInHand = self.passivePlayer.getHand()
 		for i in range(len(cardsInHand)):
+			cards += "{} ".format(self.passivePlayer.hand[i].getName())
+			# cards +=self.passivePlayer.hand[i].getName()+" "
 			line0+=" _______  "
 			line1+="|       | "
 			line2+="|       | "
@@ -289,6 +304,7 @@ class Game:
 
 		print("\n*{}*".format(self.passivePlayer.getName()))
 		if (len(cardsInHand)>0):
+			print(cards	)
 			print(line0)
 			print(line1)
 			print(line2)
@@ -782,7 +798,12 @@ class Game:
 		return (aWon,pWon)
 
 	def attackFace(self,attacker):
+		# if self.printing:
+			# print("Inni attackface")
+			# print("hasattacked: ",attacker.hasAttacked,"froze:",attacker.frozenRounds)
 		if not attacker.hasAttacked and attacker.frozenRounds<=0:
+			# if self.printing:
+				# print("etter hasattacked og frozen")
 			if  attacker.onlyAbleToAttackMinions==False:
 				if attacker.currentAttack<=0:
 					print("This minion has no attack")
@@ -910,9 +931,10 @@ class Game:
 					c=0
 					while True:
 						bestMove = self.generateBestLegalMove()
-						print("bestmove:",bestMove)
-						if not self.canDoSomething() or c>=10:
-							break
+						# print("bestmove:",bestMove)
+						# if  c>=2:
+						# 	print("can't do shit")
+						# 	break
 						# print(bestMove)
 						if bestMove[0]=="noMoreMoves":
 							break
@@ -920,15 +942,18 @@ class Game:
 							self.playCard(bestMove[1])
 							# print("Spiller beste kort")
 						elif bestMove[0]=="bestAttackFace":
-							self.attackFace(bestMove[1])
+							print("attacking face with",self.activePlayer.activeMinions[bestMove[1]].name)
+							self.attackFace(self.activePlayer.activeMinions[bestMove[1]])
+							# bestMove[1].hasAttacked=True
 						elif bestMove[0]=="bestAttackMinion":
-							self.attackMinion(bestMove[1][0],bestMove[1][1])
+							self.attackMinion(self.activePlayer.activeMinions[bestMove[1][0]],bestMove[1][1])
 						if self.activePlayer == self.player1 and self.printing:
 							self.printPassiveHand()
 							self.printGameState()
 							self.printHand()
 							print(self.evaluateState())
 						c+=1
+					'''
 					if random.randint(0,5)==0:
 						print("trolo spill at som kan")
 						for i in range (len(self.activePlayer.hand)):
@@ -964,6 +989,7 @@ class Game:
 							self.attackFace(self.activePlayer.activeMinions[i])
 						except:
 							pass
+							'''
 					if self.activePlayer == self.player1 and self.printing:
 						self.printPassiveHand()
 						self.printGameState()
@@ -1039,8 +1065,17 @@ class Game:
 						if action =="e":
 							print ("\n\n\n\n\n======== AI's TURN ========")
 							break
-						if action =="a":
-							if self.canAttack():
+						if action[0] =="a":
+
+							if len(action)>1 and int(action[1])>=0 and int(action[1])<len(self.activePlayer.activeMinions):
+								if len(action)>2 and action[2]=="f":
+									self.attackFace(self.activePlayer.activeMinions[int(action[1])])
+									print("attacked face")
+								elif len(action)>2 and int(action[2])>=0 and int(action[2])<len(self.passivePlayer.activeMinions):
+									self.attackMinion(self.activePlayer.activeMinions[int(action[1])],int(action[2]))
+									print("attacked minion")
+							
+							elif self.canAttack():
 								self.printAttackReadyMinions()
 								attacker = int(input("What index do you want to attack with?: "))
 								if attacker >= len(self.activePlayer.activeMinions):
@@ -1122,5 +1157,6 @@ class Game:
 			self.nextTurn()
 
 	def titt(self,player,amount):
-		for i in range(amount):
-			print(player.deck.cards[-1-i])
+		if self.activePlayer.AI==False:
+			for i in range(amount):
+				print(player.deck.cards[-1-i])
