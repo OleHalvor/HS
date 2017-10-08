@@ -63,6 +63,8 @@ class Player:
 		self.deck = newDeck
 
 	def reduceHealth(self,damage):
+		if self.game.printing:
+			print(self.name,"received",damage,"damage")
 		self.health = self.health - damage
 
 	def getActiveMinions(self):

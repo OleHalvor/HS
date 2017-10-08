@@ -62,7 +62,7 @@ class Game:
 
 
 		# utility = (enemyHealthScale*((yourHealthScale*-5)+(ownHandLengthScale*-1)+(enemyHandLengthScale)+(totalAttackAndHealYourSide*-1)+(totalAttackAndHealEnemySideScale)))
-		utility = (enemyHealthScale * 100) - (yourHealthScale*100) -(numberOfFriendlyMinionsScale*10)+(numberOfEnemyMinionsScale*10)+ (totalAttackAndHealEnemySideScale*10) - (totalAttackAndHealYourSideScale*10) + (enemyHandLengthScale*1) - (ownHandLengthScale*1)
+		utility = (enemyHealthScale * 10) - (yourHealthScale*10) -(numberOfFriendlyMinionsScale*5)+(numberOfEnemyMinionsScale*5)+ (totalAttackAndHealEnemySideScale*5) - (totalAttackAndHealYourSideScale*5) + (enemyHandLengthScale*1) - (ownHandLengthScale*1)
 
 		# 0 utility is optimal state
 		return utility
@@ -304,7 +304,7 @@ class Game:
 
 		print("\n*{}*".format(self.passivePlayer.getName()))
 		if (len(cardsInHand)>0):
-			print(cards	)
+			# print(cards	)
 			print(line0)
 			print(line1)
 			print(line2)
@@ -600,9 +600,13 @@ class Game:
 		print("")
 
 	def nextTurn(self):
+		for minion in self.activePlayer.activeMinions:
+			minion.roundEnd(self,minion)
+			self.removeDeadMinions()
 		if self.activePlayer == self.player1:
 			self.activePlayer = self.player2
 			self.passivePlayer = self.player1
+			print("===============",self.activePlayer.name,"'s turn =============")
 		else:
 			self.activePlayer = self.player1
 			self.passivePlayer = self.player2
@@ -627,27 +631,94 @@ class Game:
 			minion.onRoundStart(self)
 
 	def mulligan(self,player):
-		print("Your hand:")
-		c=0
-		for card in player.hand:
-			c+=1
-		self.printHand()
-		remove = str(input("Which cards do you want to remove?: (e.g. '02')"))
-		k=0
-		for card in remove:
-			# print("removing",card)
-			tempCard = player.hand.pop(int(card)-k)
-			print(tempCard.name)
-			player.deck.cards.append(tempCard)
-			k+=1
-		player.deck.shuffle()
-		for card in remove:
-			cardDrawn = player.deck.draw()
-			player.hand.append( cardDrawn)
-		
-		print("Done with mulligan")
-		for card in player.hand:
-			print(card.name)
+		if player.AI==False:
+			# print("Your hand:")
+			c=0
+			for card in player.hand:
+				c+=1
+			self.printHand()
+			remove = str(input("Which cards do you want to remove?: (e.g. '02')"))
+			k=0
+			for card in remove:
+				# print("removing",card)
+				tempCard = player.hand.pop(int(card)-k)
+				# print(tempCard.name)
+				player.deck.cards.append(tempCard)
+				k+=1
+			player.deck.shuffle()
+			for card in remove:
+				cardDrawn = player.deck.draw()
+				player.hand.append( cardDrawn)
+			
+			# print("Done with mulligan")
+			# for card in player.hand:
+			# 	print(card.name)
+		else:
+			c=0
+			k=0
+			# for card in player.hand:
+			# 	print(" kort:",card.name)
+			for card in player.hand:
+
+				if card.cost>6:
+					if self.printing:
+						print("mulligan",card.name)
+					player.deck.cards.append(card)
+					print("popper:",player.hand[k])
+					player.hand.pop(k)
+					c+=1
+					break
+				k+=1
+			# player.deck.shuffle()
+			# print(player.hand)
+			k=0
+			for card in player.hand:
+				if card.cost>5:
+					# if self.printing:
+					# 	print("mulligan",card.name)
+					player.deck.cards.append(card)
+					# print("popper:",player.hand[k])
+					player.hand.pop(k)
+					c+=1
+					break
+				k+=1
+			# player.deck.shuffle()
+			# print(player.hand)
+			k=0
+			for card in player.hand:
+				if card.cost>4:
+					# if self.printing:
+					# 	print("mulligan",card.name)
+					player.deck.cards.append(card)
+					# print("popper:",player.hand[k])
+					player.hand.pop(k)
+					c+=1
+					break
+				k+=1
+			k=0
+			for card in player.hand:
+				if card.cost>3:
+					# if self.printing:
+					# 	print("mulligan",card.name)
+					player.deck.cards.append(card)
+					# print("popper:",player.hand[k])
+					player.hand.pop(k)
+					c+=1
+					break
+				k+=1
+			# print(player.hand)
+			player.deck.shuffle()
+			
+			# if player == self.activePlayer:
+			# 	self.draw(c,"a")
+			# else:
+			# 	self.draw(c,"p")
+			for count in range(c):
+				cardDrawn = player.deck.draw()
+				player.hand.append( cardDrawn)
+			# if self.printing:
+			# 	print("mullied",c,"cards")
+
 		
 
 	def updateContinousEffects(self):
@@ -702,15 +773,18 @@ class Game:
 				target = input("Which minion do you want to damage? ('f' for face): ")
 				if target == "f":
 					self.passivePlayer.reduceHealth(spell.damageOne[0])
-					print(self.activePlayer.getName(),"damaged",self.passivePlayer.getName(),spell.damageOne[0],"damage")	
+					if self.printing:
+						print(self.activePlayer.getName(),"damaged",self.passivePlayer.getName(),spell.damageOne[0],"damage")	
 				else:
 					p2minion = self.passivePlayer.getActiveMinions()[int(target)]
 					p2Health = p2minion.getHealth() - spell.damageOne[0]
 					self.passivePlayer.getActiveMinions()[int(target)].currentHealth=p2Health
-					print(self.activePlayer.getName(),"damaged",p2minion.getName(),spell.damageOne[0],"damage")
+					if self.printing:
+						print(self.activePlayer.getName(),"damaged",p2minion.getName(),spell.damageOne[0],"damage")
 			else:
 				self.passivePlayer.reduceHealth(spell.damageOne[0])	
-				print(self.activePlayer.getName(),"damaged",self.passivePlayer.getName(),spell.damageOne[0],"damage")	
+				if self.printing:
+					print(self.activePlayer.getName(),"damaged",self.passivePlayer.getName(),spell.damageOne[0],"damage")	
 		if spell.damageEnemyAOE[0]>0:
 			if spell.damageEnemyAOE[1]:
 				#Spell hits enemy minions and face
@@ -905,8 +979,9 @@ class Game:
 			self.activePlayer.AI=True
 			self.activePlayer.printing=False
 			self.passivePlayer.printing=False
-		if self.activePlayer.AI==False:
-			self.mulligan(self.activePlayer)
+		self.mulligan(self.activePlayer)
+		self.mulligan(self.passivePlayer)
+
 		gameOver = False
 		while not gameOver:
 			roundDone = False
@@ -928,6 +1003,7 @@ class Game:
 					if self.activePlayer.getDeck().getRemaining()>0:
 						self.draw(1,"a")
 
+					self.updateContinousEffects()
 					c=0
 					while True:
 						bestMove = self.generateBestLegalMove()
@@ -1007,7 +1083,7 @@ class Game:
 							print("Player:",self.passivePlayer.name,"has won the game!")
 							gameOver = True
 						break
-					print ("======== YOUR TURN ========")
+					# print ("======== YOUR TURN ========")
 					self.nextTurn()
 					
 					# Gjør det heller lett
@@ -1015,6 +1091,7 @@ class Game:
 					# print("{}'s turn".format(self.activePlayer.getName()))
 					if self.activePlayer.getDeck().getRemaining()>0:
 						self.draw(1,"a")
+					self.updateContinousEffects()
 					prnt = True
 					while True:
 						if prnt:
@@ -1025,133 +1102,134 @@ class Game:
 						prnt = True
 						if not self.canDoSomething():
 							print ("**** You have no more possible actions ****")
-					# try:
-						if self.canAttack() and self.canPlayCard():
-							action = self.getInput("Write 'p' to play a card, 'a' to attack or 'e' to end turn: ")
-						elif self.canAttack():
-							action = self.getInput("Write 'a' to attack or 'e' to end turn: ")
-						elif self.canPlayCard():
-							action = self.getInput("Write 'p' to play a card or 'e' to end turn: ")
-						else:
-							action = self.getInput("Write 'e' to end turn: ")
-						if action == "p":
-							print("\nYou have ** {} ** mana".format(self.activePlayer.currentMana))
-							self.printPlayableCards(self.activePlayer)
-							canPlayCard = False
-							for card in self.activePlayer.hand:
-								if card.cost <= self.activePlayer.currentMana:
-									canPlayCard = True
-							if canPlayCard:
-								cardToPlay = input("Which card do you want to play? ('a' to abort) ")
-
-								if cardToPlay != "a" and not cardToPlay=="":
-									legalnumbers=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-									if int(cardToPlay) in legalnumbers:
-										if int(cardToPlay) < (len(self.activePlayer.hand)):
-											if not self.playCard(cardToPlay):
-												prnt=False
-											else:
-												prnt=True
-										else:
-											prnt=False
-											print("You entered a number that was too high")
-								else:
-									print("Aborting attack")
-							else: 
-								print("****You don't have enough mana to play any cards****")
-								prnt=False
-						if action =="v":
-							pass
-						if action =="e":
-							print ("\n\n\n\n\n======== AI's TURN ========")
-							break
-						if action[0] =="a":
-
-							if len(action)>1 and int(action[1])>=0 and int(action[1])<len(self.activePlayer.activeMinions):
-								if len(action)>2 and action[2]=="f":
-									self.attackFace(self.activePlayer.activeMinions[int(action[1])])
-									print("attacked face")
-								elif len(action)>2 and int(action[2])>=0 and int(action[2])<len(self.passivePlayer.activeMinions):
-									self.attackMinion(self.activePlayer.activeMinions[int(action[1])],int(action[2]))
-									print("attacked minion")
-							
+						try:
+							if self.canAttack() and self.canPlayCard():
+								action = self.getInput("Write 'p' to play a card, 'a' to attack or 'e' to end turn: ")
 							elif self.canAttack():
-								self.printAttackReadyMinions()
-								attacker = int(input("What index do you want to attack with?: "))
-								if attacker >= len(self.activePlayer.activeMinions):
-									print("\nThat index was too high")
+								action = self.getInput("Write 'a' to attack or 'e' to end turn: ")
+							elif self.canPlayCard():
+								action = self.getInput("Write 'p' to play a card or 'e' to end turn: ")
+							else:
+								action = self.getInput("Write 'e' to end turn: ")
+							if action == "p":
+								print("\nYou have ** {} ** mana".format(self.activePlayer.currentMana))
+								self.printPlayableCards(self.activePlayer)
+								canPlayCard = False
+								for card in self.activePlayer.hand:
+									if card.cost <= self.activePlayer.currentMana:
+										canPlayCard = True
+								if canPlayCard:
+									cardToPlay = input("Which card do you want to play? ('a' to abort) ")
 
-								else:
-									taunts = []
-									for minion in self.passivePlayer.activeMinions:
-										if minion.hasTaunt:
-											taunts.append(minion)
-									aMin = self.activePlayer.getActiveMinions()[attacker]
-									self.printPossibleTargetsOfMinion(aMin)
-									target = input("Which minion do you want to attack? ('f' for face): ")
-									print("")
-									
-									if len(taunts)>0:
-										if(target=="f"):
-											pass
-											# print("You need to target a minion with taunt")
-										else:
-											if not self.passivePlayer.activeMinions[int(target)].hasTaunt:
-												# print("You need to target a minion with taunt")
-												print(aMin.name,aMin.hasTaunt,attacker)
-											else:
-												if aMin.hasAttacked:
-													print("\n****You have already attacked with this minion****\n")
+									if cardToPlay != "a" and not cardToPlay=="":
+										legalnumbers=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+										if int(cardToPlay) in legalnumbers:
+											if int(cardToPlay) < (len(self.activePlayer.hand)):
+												if not self.playCard(cardToPlay):
 													prnt=False
-												elif aMin.frozenRounds > 0:
-													print("\n****This minion is frozen****\n")
-													prnt=False
-												elif target =='f':
-													self.attackFace(aMin)
 												else:
-													self.attackMinion(aMin,target)
-												self.removeDeadMinions()
-												aWon,pWon = self.didAnyoneWin()
-												if (aWon or pWon):
-													if aWon:
-														print("Player:",self.activePlayer.name,"has won the game!")
-														gameOver = True
-													if pWon:
-														print("Player:",self.passivePlayer.name,"has won the game!")
-														gameOver = True
-													break	
+													prnt=True
+											else:
+												prnt=False
+												print("You entered a number that was too high")
 									else:
-										if aMin.hasAttacked:
-											print("\n****You have already attacked with this minion****\n")
-											prnt=False
-										elif aMin.frozenRounds > 0:
-											print("\n****This minion is frozen****\n")
-											prnt=False
-										elif target =='f':
-											self.attackFace(aMin)
-										else:
-											self.attackMinion(aMin,target)
-										self.removeDeadMinions()
-										aWon,pWon = self.didAnyoneWin()
-										if (aWon or pWon):
-											if aWon:
-												print("Player:",self.activePlayer.name,"has won the game!")
-												gameOver = True
-											if pWon:
-												print("Player:",self.passivePlayer.name,"has won the game!")
-												gameOver = True
-											break
+										print("Aborting attack")
+								else: 
+									print("****You don't have enough mana to play any cards****")
+									prnt=False
+							if action =="quit":
+								gameOver = True
+								break
+							if action =="e":
+								# print ("\n\n\n\n\n======== AI's TURN ========")
+								break
+							if action[0] =="a":
 
-						if action =="h":
-							for card in self.activePlayer.hand:
-								print(card)
-						elif action =="d":
-							self.printDetails()
+								if len(action)>1 and int(action[1])>=0 and int(action[1])<len(self.activePlayer.activeMinions):
+									if len(action)>2 and action[2]=="f":
+										self.attackFace(self.activePlayer.activeMinions[int(action[1])])
+										print("attacked face")
+									elif len(action)>2 and int(action[2])>=0 and int(action[2])<len(self.passivePlayer.activeMinions):
+										self.attackMinion(self.activePlayer.activeMinions[int(action[1])],int(action[2]))
+										print("attacked minion")
+								
+								elif self.canAttack():
+									self.printAttackReadyMinions()
+									attacker = int(input("What index do you want to attack with?: "))
+									if attacker >= len(self.activePlayer.activeMinions):
+										print("\nThat index was too high")
+
+									else:
+										taunts = []
+										for minion in self.passivePlayer.activeMinions:
+											if minion.hasTaunt:
+												taunts.append(minion)
+										aMin = self.activePlayer.getActiveMinions()[attacker]
+										self.printPossibleTargetsOfMinion(aMin)
+										target = input("Which minion do you want to attack? ('f' for face): ")
+										print("")
+										
+										if len(taunts)>0:
+											if(target=="f"):
+												pass
+												# print("You need to target a minion with taunt")
+											else:
+												if not self.passivePlayer.activeMinions[int(target)].hasTaunt:
+													# print("You need to target a minion with taunt")
+													print(aMin.name,aMin.hasTaunt,attacker)
+												else:
+													if aMin.hasAttacked:
+														print("\n****You have already attacked with this minion****\n")
+														prnt=False
+													elif aMin.frozenRounds > 0:
+														print("\n****This minion is frozen****\n")
+														prnt=False
+													elif target =='f':
+														self.attackFace(aMin)
+													else:
+														self.attackMinion(aMin,target)
+													self.removeDeadMinions()
+													aWon,pWon = self.didAnyoneWin()
+													if (aWon or pWon):
+														if aWon:
+															print("Player:",self.activePlayer.name,"has won the game!")
+															gameOver = True
+														if pWon:
+															print("Player:",self.passivePlayer.name,"has won the game!")
+															gameOver = True
+														break	
+										else:
+											if aMin.hasAttacked:
+												print("\n****You have already attacked with this minion****\n")
+												prnt=False
+											elif aMin.frozenRounds > 0:
+												print("\n****This minion is frozen****\n")
+												prnt=False
+											elif target =='f':
+												self.attackFace(aMin)
+											else:
+												self.attackMinion(aMin,target)
+											self.removeDeadMinions()
+											aWon,pWon = self.didAnyoneWin()
+											if (aWon or pWon):
+												if aWon:
+													print("Player:",self.activePlayer.name,"has won the game!")
+													gameOver = True
+												if pWon:
+													print("Player:",self.passivePlayer.name,"has won the game!")
+													gameOver = True
+												break
+
+							if action =="h":
+								for card in self.activePlayer.hand:
+									print(card)
+							elif action =="d":
+								self.printDetails()
+								prnt=False
+						except:
+							print("USER ERROR!")
+							print("You entered a value that was not good")
 							prnt=False
-					# except:
-					# 	print("USER ERROR!")
-					# 	print("You entered a value that was not good")
-					# 	prnt=False
 					# self.activePlayer.doAction()
 					roundDone=True
 			self.nextTurn()

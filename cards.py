@@ -68,6 +68,13 @@ class Minion(Card):
 			pass
 		self.afterAttack = afterAttackFunc
 
+		def onRoundEnd(game,minion):
+			pass
+		self.roundEnd = onRoundEnd
+
+	def setOnRoundEnd(self,action):
+		self.roundEnd = action
+
 	def setAfterAttack(self,action):
 		self.afterAttack = action
 
@@ -123,7 +130,7 @@ class Minion(Card):
 
 	def freeze(self,rounds):
 		self.frozenRounds += rounds+1
-		if self.owner.printing:
+		if self.owner.game.printing:
 				print(self.name,"has been frozen")
 		
 
@@ -147,7 +154,7 @@ class Minion(Card):
 	def damage(self,damage):
 		self.currentHealth = self.currentHealth - damage
 		if self.owner.game.printing:
-				print(self.name,"received",damage,"damage")
+				print(self.owner,"'s", self.name,"received",damage,"damage")
 
 	def setHealth(self,newHealth):
 		self.health = newHealth
