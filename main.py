@@ -37,6 +37,8 @@ bjarne = Minion("Bjarne",2,1,2)
 bjarne.setDescription("Worst minion in the game")
 collection.append(bjarne)
 
+
+
 #If you wish to add a battlecry this is the way:
 munk = Minion("Munken",5,2,3)
 def skad5(game,minion):
@@ -232,12 +234,14 @@ def frostBoltEffect(game):
 			game.passivePlayer.reduceHealth(3)
 		else:
 			game.passivePlayer.activeMinions[int(target)].damage(3)
+			game.removeDeadMinions()
 			game.passivePlayer.activeMinions[int(target)].freeze(1)
 	else:
 		targetMinions = game.passivePlayer.activeMinions
 		if len(targetMinions)>0:
 			target = targetMinions[random.randint(0,len(targetMinions)-1)]
 			target.damage(3)
+			game.removeDeadMinions()
 			target.freeze(1)
 			# print("Frostbolt hit target",target.name)
 		else:
@@ -446,7 +450,7 @@ collection.append(ragnaros)
 deck1 = Deck("Deck 1")
 for card in collection:
 	deck1.addCard(card)
-	
+
 
 
 
