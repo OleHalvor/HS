@@ -25,43 +25,60 @@ class Game:
 		self.debug = True
 		self.isSimulated = False
 
-	def evaluateCompleteRound(game,iteration):
+	def evaluateCompleteRound(game,iteration,previousMoves):
 		iteration += 1
 		hand = game.activePlayer.hand
 		fMinions = game.activePlayer.activeMinions
 		tempGame = copy.deepcopy(game)
+		
+		if len(previousMoves)>0 and  previousMoves[-1] == -1:
+			print("done")
+			return game.evaluateState()
 
-		if tempGame.canDoSomething():
-			print("remaining hand len",len(tempGame.activePlayer.hand))
-			bestMove = tempGame.generateBestLegalMove(iteration)
+		if tempGame.canDoSomething() and iteration <4:
+			# print("remaining hand len",len(tempGame.activePlayer.hand))
+			bestMove = tempGame.generateBestLegalMove(iteration,previousMoves)
+			previousMoves.append(bestMove[0])
+			previousMoves.append(bestMove[1])
+			print(previousMoves)
 			print("bestMove",bestMove)
 			
 			# print("bestmove:",bestMove)
-			if bestMove[0]=="noMoreMoves" or iteration>3:
-				print("1 leaf node reached")
+			if bestMove[0]=="noMoreMoves":
+				# print("1 leaf node reached")
 				score = tempGame.evaluateState()
-				print("score",score)
+				# print("score",score)
+				print(previousMoves)
 				return score
 			if bestMove[0]=="bestCard":
 				tempGame.playCard(bestMove[1])
-				print("4: played card")
-				tempGame.evaluateCompleteRound(iteration)
+				# print("4: played card")
+
+				return tempGame.evaluateCompleteRound(iteration,previousMoves)
 				# print("Spiller beste kort")
 			elif bestMove[0]=="bestAttackFace":
-				print("attacking face with",tempGame.activePlayer.activeMinions[bestMove[1]].name)
+				# print("attacking face with",tempGame.activePlayer.activeMinions[bestMove[1]].name)
 				tempGame.attackFace(tempGame.activePlayer.activeMinions[bestMove[1]])
-				tempGame.evaluateCompleteRound(iteration)
+				print("attacked?",tempGame.activePlayer.activeMinions[bestMove[1]].hasAttacked)
+				return tempGame.evaluateCompleteRound(iteration,previousMoves)
 				# bestMove[1].hasAttacked=True
 			elif bestMove[0]=="bestAttackMinion":
 				tempGame.attackMinion(tempGame.activePlayer.activeMinions[bestMove[1][0]],bestMove[1][1])
-				print("5, attacked mnion")
-				tempGame.evaluateCompleteRound(iteration)	
+				# print("5, attacked mnion")
+				return tempGame.evaluateCompleteRound(iteration,previousMoves)	
+			else:
+				# print("3 leaf node reached")
+				# print("returning",tempGame.evaluateState())
+				score = tempGame.evaluateState()
+				# print("score",score)
+				print(previousMoves)
+				return (score)		
 		else:
-			print("2 leaf node reached")
-			print("returning",tempGame.evaluateState())
-			
+			# print("2 leaf node reached")
+			# print("returning",tempGame.evaluateState())
 			score = tempGame.evaluateState()
-			print("score",score)
+			# print("score",score)
+			print(previousMoves)
 			return (score)
 
 	def evaluateState(game):
@@ -107,8 +124,8 @@ class Game:
 		if numberOfEnemyMinionsScale>1: numberOfEnemyMinionsScale = 1
 
 
-		if game.printing:
-			print("frozen",frozenEnemiesScale)
+		# if game.printing:
+			# print("frozen",frozenEnemiesScale)
 		# utility = (enemyHealthScale*((yourHealthScale*-5)+(ownHandLengthScale*-1)+(enemyHandLengthScale)+(totalAttackAndHealYourSide*-1)+(totalAttackAndHealEnemySideScale)))
 		utility =  (enemyHealthScale * 6) - (yourHealthScale*6) -(numberOfFriendlyMinionsScale*5)+(numberOfEnemyMinionsScale*5)+ (totalAttackAndHealEnemySideScale*5) - (totalAttackAndHealYourSideScale*5) + (enemyHandLengthScale*1) - (ownHandLengthScale*3) - (remainingManaScale*0.1)
 		if (enemyHealth - yourHealth)>12 or yourHealth<15 :
@@ -118,7 +135,7 @@ class Game:
 		# 0 utility is optimal state
 		return utility
 
-	def generateBestLegalMove(game,iteration):
+	def generateBestLegalMove(game,iteration,p_moves):
 		nyGame = copy.deepcopy(game)
 		nyGame2 = copy.deepcopy(game)
 		currentUtility = game.evaluateState()
@@ -132,18 +149,19 @@ class Game:
 			# tempGame.evaluateCompleteRound()
 			tempGame.playCard(card)
 			tempUtility = 999999
-			if iteration >2:
-				tempUtility = tempGame.evaluateState()
-			else:
-				tempUtility = tempGame.evaluateCompleteRound(iteration)
-				print("Done evaluateCompleteRound",tempUtility)
+			tempUtility = tempGame.evaluateState()
+			# if iteration >3:
+			# 	tempUtility = tempGame.evaluateState()
+			# else:
+			# 	tempUtility = tempGame.evaluateCompleteRound(iteration,p_moves)
+				# print("Done evaluateCompleteRound",tempUtility)
 			
-			print("util",tempUtility,card)
+			# print("util",tempUtility,card)
 		
 			if tempUtility < bestCardUtility:
 				bestCardUtility = tempUtility
 				bestCard = card
-				print("this was better")
+				# print("this was better")
 
 		bestAttackMinion = -1
 		bestAttackTarget = -1
@@ -162,6 +180,7 @@ class Game:
 					tempGame.printing=False
 					tempGame.attackMinion(tempGame.activePlayer.activeMinions[tempMinion],target)
 					# tempGame.activePlayer.activeMinions[tempMinion].hasAttacked=False
+					# tempUtility = tempGame.evaluateCompleteRound(iteration,p_moves)
 					tempUtility = tempGame.evaluateState()
 					if tempUtility < bestAttackMinionUtility:
 						bestAttackMinionUtility = tempUtility
@@ -178,6 +197,7 @@ class Game:
 					tempGame.attackFace(tempGame.activePlayer.activeMinions[tempMinion])
 					# tempGame.activePlayer.activeMinions[tempMinion].hasAttacked=False
 					tempUtility = tempGame.evaluateState()
+					# tempUtility = tempGame.evaluateCompleteRound(iteration,p_moves)
 					# print("angriping med",tempMinion,"gir utility: ",tempUtility)
 					if tempUtility < bestAttackFaceUtility:
 						bestAttackFaceUtility = tempUtility
@@ -354,8 +374,8 @@ class Game:
 		cards =''
 		cardsInHand = self.passivePlayer.getHand()
 		for i in range(len(cardsInHand)):
-			cards += "{} ".format(self.passivePlayer.hand[i].getName())
-			# cards +=self.passivePlayer.hand[i].getName()+" "
+			# cards += "{} ".format(self.passivePlayer.hand[i].getName())
+			cards +=self.passivePlayer.hand[i].getName()+" "
 			line0+=" _______  "
 			line1+="|       | "
 			line2+="|       | "
@@ -366,7 +386,7 @@ class Game:
 
 		print("\n*{}*".format(self.passivePlayer.getName()))
 		if (len(cardsInHand)>0):
-			# print(cards	)
+			print(cards	)
 			print(line0)
 			print(line1)
 			print(line2)
@@ -1073,7 +1093,8 @@ class Game:
 					self.updateContinousEffects()
 					c=0
 					while True:
-						bestMove = self.generateBestLegalMove(2)
+						p_moves = []
+						bestMove = self.generateBestLegalMove(2,p_moves)
 						print("bestmove:",bestMove)
 						if bestMove[0]=="noMoreMoves":
 							break
